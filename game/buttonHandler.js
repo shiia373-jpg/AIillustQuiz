@@ -1,6 +1,6 @@
 const { ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder } = require('discord.js');
 const { getGame, updateGame, clearGame } = require('./gameState');
-const { buildFinalMessage, buildStopMessage } = require('./quizBuilder');
+const { buildGiveupMessage, buildFinalMessage, buildStopMessage } = require('./quizBuilder');
 
 async function handleButton(interaction) {
   const guildId = interaction.guildId;
@@ -72,7 +72,17 @@ async function handleButton(interaction) {
     return interaction.showModal(modal);
   }
 
-  if (interaction.customId === 'quiz_next_round' || interaction.customId === 'quiz_giveup') {
+  if (interaction.customId === 'quiz_giveup') {
+    if (!isQuizmaster) return interaction.reply({ content: '出題者のみ操作できます。', ephemeral: true });
+
+    const isLastRound = game.currentRound >= game.totalRounds;
+    await interaction.deferUpdate();
+    if (isLastRound) clearGame(guildId);
+    await interaction.message.edit({ ...buildGiveupMessage(game), files: [] });
+    return;
+  }
+
+  if (interaction.customId === 'quiz_next_round') {
     if (!isQuizmaster) return interaction.reply({ content: '出題者のみ操作できます。', ephemeral: true });
 
     const isLastRound = game.currentRound >= game.totalRounds;

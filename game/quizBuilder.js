@@ -55,7 +55,7 @@ function buildQuizMessage(game) {
   return { embeds: [embed], components: [row1, row2], files: [attachment] };
 }
 
-function buildRoundEndMessage(game, answer, winners) {
+function buildRoundEndMessage(game, answer, winners, includeButtons = false) {
   const embed = new EmbedBuilder()
     .setColor(0xfee75c)
     .setTitle(`ラウンド ${game.currentRound} 終了！`);
@@ -81,7 +81,22 @@ function buildRoundEndMessage(game, answer, winners) {
     embed.addFields({ name: '現在のスコア', value: scoreText });
   }
 
-  return { embeds: [embed], components: [] };
+  if (!includeButtons) return { embeds: [embed], components: [] };
+
+  const isLastRound = game.currentRound >= game.totalRounds;
+  if (isLastRound) return { embeds: [embed], components: [] };
+
+  const nextRoundBtn = new ButtonBuilder()
+    .setCustomId('quiz_next_round')
+    .setLabel('次のラウンドへ')
+    .setStyle(ButtonStyle.Success);
+
+  const stopBtn = new ButtonBuilder()
+    .setCustomId('quiz_stop')
+    .setLabel('クイズを終了')
+    .setStyle(ButtonStyle.Danger);
+
+  return { embeds: [embed], components: [new ActionRowBuilder().addComponents(nextRoundBtn, stopBtn)] };
 }
 
 function buildFinalMessage(game) {
@@ -102,6 +117,39 @@ function buildFinalMessage(game) {
   return { embeds: [embed], components: [] };
 }
 
+function buildGiveupMessage(game) {
+  const isLastRound = game.currentRound >= game.totalRounds;
+
+  const embed = new EmbedBuilder()
+    .setColor(0xed4245)
+    .setTitle(`ラウンド ${game.currentRound} / ${game.totalRounds}　ギブアップ！`)
+    .addFields({ name: '正解', value: `**${game.answer}**` });
+
+  const scores = game.scores;
+  const scoreText = Object.entries(scores)
+    .sort(([, a], [, b]) => b - a)
+    .map(([id, pts], i) => `${i + 1}位: <@${id}> ${pts}ポイント`)
+    .join('\n');
+  if (scoreText) embed.addFields({ name: '現在のスコア', value: scoreText });
+
+  if (isLastRound) {
+    return { embeds: [embed], components: [] };
+  }
+
+  const nextRoundBtn = new ButtonBuilder()
+    .setCustomId('quiz_next_round')
+    .setLabel('次のラウンドへ')
+    .setStyle(ButtonStyle.Success);
+
+  const stopBtn = new ButtonBuilder()
+    .setCustomId('quiz_stop')
+    .setLabel('クイズを終了')
+    .setStyle(ButtonStyle.Danger);
+
+  const row = new ActionRowBuilder().addComponents(nextRoundBtn, stopBtn);
+  return { embeds: [embed], components: [row] };
+}
+
 function buildStopMessage(game) {
   const embed = new EmbedBuilder()
     .setColor(0xed4245)
@@ -120,4 +168,4 @@ function buildStopMessage(game) {
   return { embeds: [embed], components: [] };
 }
 
-module.exports = { buildQuizMessage, buildRoundEndMessage, buildFinalMessage, buildStopMessage };
+module.exports = { buildQuizMessage, buildRoundEndMessage, buildGiveupMessage, buildFinalMessage, buildStopMessage };

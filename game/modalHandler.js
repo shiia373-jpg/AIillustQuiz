@@ -101,6 +101,9 @@ async function handleModal(interaction) {
     }
 
     const answer = interaction.fields.getTextInputValue('word_input').trim();
+    if (/[\u4E00-\u9FFF\u3400-\u4DBF]/.test(answer)) {
+      return interaction.reply({ content: '⚠️ お題にはひらがな・カタカナのみ使用できます。漢字は使えません。', ephemeral: true });
+    }
     await interaction.deferUpdate();
     await generateAndStartRound(interaction, game, answer, interaction.channel);
     return;
@@ -152,7 +155,21 @@ async function handleModal(interaction) {
     scores[interaction.user.id] = (scores[interaction.user.id] || 0) + pts;
     updateGame(guildId, { roundWinners: newWinners, scores });
 
-    await interaction.reply({ content: `正解！${pts}ポイント獲得！`, ephemeral: false });
+    await interaction.reply({ content: `正解！${pts}ポイント獲得！`, ephemeral: true });
+
+    if (newWinners.length >= 3) {
+      const updatedGame = getGame(guildId);
+      const isLastRound = updatedGame.currentRound >= updatedGame.totalRounds;
+      const quizMessage = await interaction.channel.messages.fetch(updatedGame.messageId).catch(() => null);
+
+      if (isLastRound) {
+        clearGame(guildId);
+        if (quizMessage) await quizMessage.edit({ ...buildRoundEndMessage(updatedGame, updatedGame.answer, newWinners), files: [] });
+        await interaction.channel.send(buildFinalMessage(updatedGame));
+      } else {
+        if (quizMessage) await quizMessage.edit({ ...buildRoundEndMessage(updatedGame, updatedGame.answer, newWinners, true), files: [] });
+      }
+    }
     return;
   }
 
@@ -165,6 +182,9 @@ async function handleModal(interaction) {
     }
 
     const answer = interaction.fields.getTextInputValue('next_word_input').trim();
+    if (/[\u4E00-\u9FFF\u3400-\u4DBF]/.test(answer)) {
+      return interaction.reply({ content: '⚠️ お題にはひらがな・カタカナのみ使用できます。漢字は使えません。', ephemeral: true });
+    }
     const prevAnswer = game.answer;
     const winners = game.roundWinners || [];
     const isLastRound = game.currentRound >= game.totalRounds;
