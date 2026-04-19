@@ -37,6 +37,11 @@ function buildQuizMessage(game) {
     .setLabel('ギブアップ')
     .setStyle(ButtonStyle.Danger);
 
+  const checkWinnersBtn = new ButtonBuilder()
+    .setCustomId('quiz_check_winners')
+    .setLabel('正解者確認')
+    .setStyle(ButtonStyle.Secondary);
+
   const nextRoundBtn = new ButtonBuilder()
     .setCustomId('quiz_next_round')
     .setLabel('次のラウンドへ')
@@ -47,7 +52,7 @@ function buildQuizMessage(game) {
     .setLabel('クイズを終了')
     .setStyle(ButtonStyle.Danger);
 
-  const row1 = new ActionRowBuilder().addComponents(addHintBtn, answerBtn, giveupBtn);
+  const row1 = new ActionRowBuilder().addComponents(addHintBtn, answerBtn, giveupBtn, checkWinnersBtn);
   const row2 = new ActionRowBuilder().addComponents(nextRoundBtn, stopBtn);
 
   const attachment = new AttachmentBuilder(game.imageAttachment.attachment, { name: 'quiz.png' });

@@ -72,6 +72,18 @@ async function handleButton(interaction) {
     return interaction.showModal(modal);
   }
 
+  if (interaction.customId === 'quiz_check_winners') {
+    if (!isQuizmaster) return interaction.reply({ content: '出題者のみ確認できます。', ephemeral: true });
+
+    const winners = game.roundWinners || [];
+    if (winners.length === 0) {
+      return interaction.reply({ content: '📋 まだ誰も正解していません。', ephemeral: true });
+    }
+    const pointList = [3, 2, 1];
+    const list = winners.map((id, i) => `${i + 1}人目: <@${id}> (+${pointList[i] ?? 0}pt)`).join('\n');
+    return interaction.reply({ content: `📋 **正解者一覧**\n${list}`, ephemeral: true });
+  }
+
   if (interaction.customId === 'quiz_giveup') {
     if (!isQuizmaster) return interaction.reply({ content: '出題者のみ操作できます。', ephemeral: true });
 
