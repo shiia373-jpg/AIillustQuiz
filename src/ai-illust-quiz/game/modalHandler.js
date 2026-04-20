@@ -7,23 +7,22 @@ const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 function buildImagePrompt(answer) {
   return (
-    `Create a charming, visually pleasant illustration where the hidden subject is "${answer}". ` +
-    `Make it challenging to identify by applying ONE or TWO of these techniques: ` +
-    `an unusual angle (top-down or bottom-up), a stylized or abstract artistic style, ` +
-    `clever use of negative space, or showing only a partial view from an unexpected perspective. ` +
-    `The overall image should feel cute, beautiful, or whimsical — never unsettling or gross. ` +
-    `Use soft colors and clean shapes. The subject should take some thought to identify. ` +
+    `Create a cute, kawaii-style illustration where the hidden subject is "${answer}". ` +
+    `The art style should be clean, friendly, and appealing — like a sticker or children's book illustration. ` +
+    `Make it challenging to identify by using an unusual angle or showing only a partial view. ` +
+    `Use soft pastel colors, smooth surfaces, and simple rounded shapes. ` +
     `No text, no letters, no words anywhere in the image. ` +
-    `The image must use only large, simple, well-separated shapes — no groupings of small repeated elements. ` +
-    `STRICTLY FORBIDDEN — these must never appear under any circumstances: ` +
-    `any cluster or group of small objects, holes, bumps, pores, or cavities; ` +
-    `sponge, foam, mesh, or net-like textures; seed pods, lotus heads, sunflower centers, or similar organic clusters; ` +
-    `skin with pores or follicles; coral, honeycombs, bubbles, insect nests, or egg masses; ` +
-    `densely packed circles, ovals, dots, spheres, or irregular voids of any kind; ` +
-    `fruit with many seeds (like strawberries or kiwi cross-sections); ` +
-    `anything that resembles a colony, swarm, or dense accumulation of similar shapes. ` +
-    `Prefer single subjects on clean, simple backgrounds. ` +
-    `The image must be completely safe for people with trypophobia.`
+    `STRICTLY FORBIDDEN — must never appear under any circumstances: ` +
+    `anything grotesque, disturbing, creepy, or disgusting; ` +
+    `realistic depictions of insects, parasites, mold, rot, wounds, or bodily fluids; ` +
+    `dark or horror-themed imagery; uncanny or unsettling faces; ` +
+    `any cluster or group of holes, bumps, pores, or cavities; ` +
+    `sponge, foam, mesh, or net-like textures; ` +
+    `seed pods, lotus heads, sunflower centers, honeycombs, coral, insect nests, or egg masses; ` +
+    `densely packed circles, dots, or irregular voids of any kind; ` +
+    `fruit cross-sections showing many seeds (strawberries, kiwi, etc.); ` +
+    `anything resembling a swarm, colony, or dense accumulation of similar shapes. ` +
+    `The result must be something anyone would find pleasant and cute to look at.`
   );
 }
 
