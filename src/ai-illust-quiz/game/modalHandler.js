@@ -70,39 +70,27 @@ async function generateImageBuffer(answer) {
   return Buffer.from(response.data[0].b64_json, 'base64');
 }
 
-async function generatePreview(interaction, answer) {
-  console.log('[Preview] start, answer:', answer);
-  try {
-    await interaction.editReply({ content: '🎨 イラストを生成中です…' });
-    console.log('[Preview] editReply loading OK');
-  } catch (err) {
-    console.error('[Preview] editReply loading failed:', err);
-    return;
-  }
+async function generatePreview(interaction, game, answer, channel) {
+  const loadingMsg = await channel.send('🎨 イラストを生成中です…');
+  await interaction.deferUpdate();
 
   let imageBuffer;
   try {
     imageBuffer = await generateImageBuffer(answer);
-    console.log('[Preview] image generated, size:', imageBuffer.length);
   } catch (err) {
-    console.error('[Preview] image generation failed:', err);
-    await interaction.editReply({ content: `画像生成に失敗しました: ${err.message}` }).catch(console.error);
+    console.error(err);
+    await loadingMsg.edit(`画像生成に失敗しました: ${err.message}`);
     return;
   }
 
   updateGame(interaction.guildId, { pendingAnswer: answer, pendingImageBuffer: imageBuffer });
 
   const attachment = new AttachmentBuilder(imageBuffer, { name: 'preview.png' });
-  try {
-    await interaction.editReply({
-      content: '📋 生成されたイラストを確認してください。問題がなければ「このイラストで開始」を押してください。',
-      files: [attachment],
-      components: [buildPreviewRow()],
-    });
-    console.log('[Preview] preview sent OK');
-  } catch (err) {
-    console.error('[Preview] editReply preview failed:', err);
-  }
+  await loadingMsg.edit({
+    content: `🖼️ <@${game.quizmasterId}> イラストを確認してください。`,
+    files: [attachment],
+    components: [buildPreviewRow()],
+  });
 }
 
 async function regeneratePreview(buttonInteraction) {
@@ -110,23 +98,22 @@ async function regeneratePreview(buttonInteraction) {
   const game = getGame(guildId);
   if (!game || !game.pendingAnswer) return;
 
-  await buttonInteraction.deferUpdate();
-  await buttonInteraction.editReply({ content: '🎨 再生成中です…', files: [], components: [] });
+  await buttonInteraction.update({ content: '🎨 再生成中です…', files: [], components: [] });
 
   let imageBuffer;
   try {
     imageBuffer = await generateImageBuffer(game.pendingAnswer);
   } catch (err) {
     console.error(err);
-    await buttonInteraction.editReply({ content: `画像生成に失敗しました: ${err.message}`, files: [], components: [] });
+    await buttonInteraction.message.edit({ content: `画像生成に失敗しました: ${err.message}`, files: [], components: [] });
     return;
   }
 
   updateGame(guildId, { pendingImageBuffer: imageBuffer });
 
   const attachment = new AttachmentBuilder(imageBuffer, { name: 'preview.png' });
-  await buttonInteraction.editReply({
-    content: '📋 生成されたイラストを確認してください。問題がなければ「このイラストで開始」を押してください。',
+  await buttonInteraction.message.edit({
+    content: `🖼️ <@${game.quizmasterId}> イラストを確認してください。`,
     files: [attachment],
     components: [buildPreviewRow()],
   });
@@ -181,8 +168,7 @@ async function handleModal(interaction) {
       return interaction.reply({ content: '⚠️ お題にはひらがな・カタカナのみ使用できます。漢字は使えません。', ephemeral: true });
     }
 
-    await interaction.deferReply({ ephemeral: true });
-    await generatePreview(interaction, answer);
+    await generatePreview(interaction, game, answer, interaction.channel);
     return;
   }
 
@@ -280,8 +266,8 @@ async function handleModal(interaction) {
     const nextRound = game.currentRound + 1;
     updateGame(guildId, { currentRound: nextRound });
 
-    await interaction.deferReply({ ephemeral: true });
-    await generatePreview(interaction, answer);
+    const updatedGame = getGame(guildId);
+    await generatePreview(interaction, updatedGame, answer, interaction.channel);
     return;
   }
 }
