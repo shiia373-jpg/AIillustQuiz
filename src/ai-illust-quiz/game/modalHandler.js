@@ -14,8 +14,12 @@ function buildImagePrompt(answer) {
     `The overall image should feel cute, beautiful, or whimsical — never unsettling or gross. ` +
     `Use soft colors and clean shapes. The subject should take some thought to identify. ` +
     `No text, no letters, no words anywhere in the image. ` +
-    `Avoid anything disturbing, grotesque, gory, or trypophobia-triggering: ` +
-    `no clusters of holes or pores, no irregular bumpy surfaces, no dense repetitive circular patterns.`
+    `STRICTLY FORBIDDEN — these must never appear under any circumstances: ` +
+    `clusters of holes, pores, bumps, or cavities of any size; ` +
+    `sponge-like or foam-like textures; seed pods, lotus heads, or similar organic cluster structures; ` +
+    `skin with visible pores or follicles; coral, bubbles in clusters, or insect nests; ` +
+    `any pattern of densely packed circles, ovals, or irregular voids. ` +
+    `The image must be completely safe for people with trypophobia.`
   );
 }
 
