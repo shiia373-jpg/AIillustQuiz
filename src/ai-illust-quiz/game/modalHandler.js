@@ -97,7 +97,7 @@ async function regeneratePreview(buttonInteraction) {
   const game = getGame(guildId);
   if (!game || !game.pendingAnswer) return;
 
-  await buttonInteraction.deferUpdate();
+  await buttonInteraction.update({ content: '🎨 イラストを再生成中です…', files: [], components: [] });
 
   let imageBuffer;
   try {
