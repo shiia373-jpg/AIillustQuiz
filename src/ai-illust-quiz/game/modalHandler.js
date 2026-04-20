@@ -14,11 +14,15 @@ function buildImagePrompt(answer) {
     `The overall image should feel cute, beautiful, or whimsical — never unsettling or gross. ` +
     `Use soft colors and clean shapes. The subject should take some thought to identify. ` +
     `No text, no letters, no words anywhere in the image. ` +
+    `The image must use only large, simple, well-separated shapes — no groupings of small repeated elements. ` +
     `STRICTLY FORBIDDEN — these must never appear under any circumstances: ` +
-    `clusters of holes, pores, bumps, or cavities of any size; ` +
-    `sponge-like or foam-like textures; seed pods, lotus heads, or similar organic cluster structures; ` +
-    `skin with visible pores or follicles; coral, bubbles in clusters, or insect nests; ` +
-    `any pattern of densely packed circles, ovals, or irregular voids. ` +
+    `any cluster or group of small objects, holes, bumps, pores, or cavities; ` +
+    `sponge, foam, mesh, or net-like textures; seed pods, lotus heads, sunflower centers, or similar organic clusters; ` +
+    `skin with pores or follicles; coral, honeycombs, bubbles, insect nests, or egg masses; ` +
+    `densely packed circles, ovals, dots, spheres, or irregular voids of any kind; ` +
+    `fruit with many seeds (like strawberries or kiwi cross-sections); ` +
+    `anything that resembles a colony, swarm, or dense accumulation of similar shapes. ` +
+    `Prefer single subjects on clean, simple backgrounds. ` +
     `The image must be completely safe for people with trypophobia.`
   );
 }
