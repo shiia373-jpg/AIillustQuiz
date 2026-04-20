@@ -70,27 +70,26 @@ async function generateImageBuffer(answer) {
   return Buffer.from(response.data[0].b64_json, 'base64');
 }
 
-async function generatePreview(interaction, game, answer, channel) {
-  const loadingMsg = await channel.send('🎨 イラストを生成中です…');
+// interaction はすでに deferReply({ ephemeral: true }) 済みであること
+async function generatePreview(interaction, answer) {
+  await interaction.editReply({ content: '🎨 イラストを生成中です…' });
 
   let imageBuffer;
   try {
     imageBuffer = await generateImageBuffer(answer);
   } catch (err) {
     console.error(err);
-    await loadingMsg.edit(`画像生成に失敗しました: ${err.message}`);
+    await interaction.editReply({ content: `画像生成に失敗しました: ${err.message}` });
     return;
   }
 
-  await loadingMsg.delete().catch(() => {});
   updateGame(interaction.guildId, { pendingAnswer: answer, pendingImageBuffer: imageBuffer });
 
   const attachment = new AttachmentBuilder(imageBuffer, { name: 'preview.png' });
-  await interaction.followUp({
+  await interaction.editReply({
     content: '📋 生成されたイラストを確認してください。問題がなければ「このイラストで開始」を押してください。',
     files: [attachment],
     components: [buildPreviewRow()],
-    ephemeral: true,
   });
 }
 
@@ -100,6 +99,7 @@ async function regeneratePreview(buttonInteraction) {
   if (!game || !game.pendingAnswer) return;
 
   await buttonInteraction.deferUpdate();
+  await buttonInteraction.editReply({ content: '🎨 再生成中です…', files: [], components: [] });
 
   let imageBuffer;
   try {
@@ -165,12 +165,12 @@ async function handleModal(interaction) {
     }
 
     const answer = interaction.fields.getTextInputValue('word_input').trim();
-    await interaction.deferUpdate();
     if (/[\u4E00-\u9FFF\u3400-\u4DBF\uF900-\uFAFF]/.test(answer)) {
-      await interaction.followUp({ content: '⚠️ お題にはひらがな・カタカナのみ使用できます。漢字は使えません。', ephemeral: true });
-      return;
+      return interaction.reply({ content: '⚠️ お題にはひらがな・カタカナのみ使用できます。漢字は使えません。', ephemeral: true });
     }
-    await generatePreview(interaction, game, answer, interaction.channel);
+
+    await interaction.deferReply({ ephemeral: true });
+    await generatePreview(interaction, answer);
     return;
   }
 
@@ -247,30 +247,29 @@ async function handleModal(interaction) {
     }
 
     const answer = interaction.fields.getTextInputValue('next_word_input').trim();
-    await interaction.deferUpdate();
     if (/[\u4E00-\u9FFF\u3400-\u4DBF\uF900-\uFAFF]/.test(answer)) {
-      await interaction.followUp({ content: '⚠️ お題にはひらがな・カタカナのみ使用できます。漢字は使えません。', ephemeral: true });
-      return;
+      return interaction.reply({ content: '⚠️ お題にはひらがな・カタカナのみ使用できます。漢字は使えません。', ephemeral: true });
     }
 
     const prevAnswer = game.answer;
     const winners = game.roundWinners || [];
     const isLastRound = game.currentRound >= game.totalRounds;
 
+    // クイズメッセージをラウンド終了表示に更新
     await interaction.message.edit({ ...buildRoundEndMessage(game, prevAnswer, winners), files: [] });
 
     if (isLastRound) {
-      const finalPayload = buildFinalMessage(game);
-      await interaction.channel.send(finalPayload);
+      await interaction.channel.send(buildFinalMessage(game));
       clearGame(guildId);
+      await interaction.reply({ content: '✅ ゲーム終了！', ephemeral: true });
       return;
     }
 
     const nextRound = game.currentRound + 1;
     updateGame(guildId, { currentRound: nextRound });
-    const updatedGame = getGame(guildId);
 
-    await generatePreview(interaction, updatedGame, answer, interaction.channel);
+    await interaction.deferReply({ ephemeral: true });
+    await generatePreview(interaction, answer);
     return;
   }
 }
