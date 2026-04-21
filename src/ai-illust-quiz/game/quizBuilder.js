@@ -112,11 +112,15 @@ function buildFinalMessage(game) {
     .setColor(0x57f287)
     .setTitle('全ラウンド終了！最終結果');
 
+  if (game.answer) {
+    embed.addFields({ name: '最終ラウンドの正解', value: `**${game.answer}**` });
+  }
+
   if (sorted.length > 0) {
     const resultText = sorted.map(([id, pts], i) => `${i + 1}位: <@${id}> ${pts}ポイント`).join('\n');
-    embed.setDescription(resultText);
+    embed.addFields({ name: '最終順位', value: resultText });
   } else {
-    embed.setDescription('誰も正解しませんでした！');
+    embed.addFields({ name: '最終順位', value: '誰も正解しませんでした！' });
   }
 
   return { embeds: [embed], components: [] };
@@ -159,6 +163,10 @@ function buildStopMessage(game) {
   const embed = new EmbedBuilder()
     .setColor(0xed4245)
     .setTitle('クイズを終了しました');
+
+  if (game && game.answer) {
+    embed.addFields({ name: 'このラウンドの正解', value: `**${game.answer}**` });
+  }
 
   const scores = game ? game.scores : {};
   const sorted = Object.entries(scores).sort(([, a], [, b]) => b - a);
