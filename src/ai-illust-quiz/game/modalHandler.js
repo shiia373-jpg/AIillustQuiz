@@ -11,6 +11,8 @@ function buildImagePrompt(answer) {
     `Create a cute, kawaii-style illustration where the hidden subject is "${answer}". ` +
     `Make it difficult to identify by using ONE of these techniques: an extreme close-up of an unexpected detail, ` +
     `an unusual top-down or bottom-up angle, or showing only a small partial view of the subject. ` +
+    `Place the subject centered on a plain, solid-color background with no other objects, scenery, or decorative elements around it. ` +
+    `The background must be completely empty — no patterns, no props, no environment. ` +
     `The art style should be clean, friendly, and appealing — like a sticker or children's book illustration. ` +
     `Use soft pastel colors, smooth surfaces, and simple rounded shapes. ` +
     `No text, no letters, no words anywhere in the image. ` +
