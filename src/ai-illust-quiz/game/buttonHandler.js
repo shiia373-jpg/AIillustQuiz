@@ -67,6 +67,17 @@ async function handleButton(interaction) {
     return;
   }
 
+  if (interaction.customId === 'quiz_image_cancel') {
+    const game = getGame(guildId);
+    if (!game) return interaction.reply({ content: '⚠️ エラーが発生しました。', ephemeral: true });
+    if (interaction.user.id !== game.quizmasterId) {
+      return interaction.reply({ content: '出題者のみ操作できます。', ephemeral: true });
+    }
+    updateGame(guildId, { pendingAnswer: null, pendingImageBuffer: null });
+    await interaction.update({ content: '❌ お題をキャンセルしました。', files: [], components: [] });
+    return;
+  }
+
   const game = getGame(guildId);
   if (!game || !game.active) return interaction.reply({ content: '進行中のクイズがありません。', ephemeral: true });
   const isQuizmaster = interaction.user.id === game.quizmasterId;

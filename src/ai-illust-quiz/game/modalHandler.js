@@ -58,7 +58,8 @@ function normalize(str) {
 function buildPreviewRow() {
   return new ActionRowBuilder().addComponents(
     new ButtonBuilder().setCustomId('quiz_image_approve').setLabel('このイラストで開始').setStyle(ButtonStyle.Success),
-    new ButtonBuilder().setCustomId('quiz_image_reject').setLabel('再生成').setStyle(ButtonStyle.Danger),
+    new ButtonBuilder().setCustomId('quiz_image_reject').setLabel('再生成').setStyle(ButtonStyle.Secondary),
+    new ButtonBuilder().setCustomId('quiz_image_cancel').setLabel('このお題を止める').setStyle(ButtonStyle.Danger),
   );
 }
 
