@@ -12,7 +12,7 @@ module.exports = {
       opt.setName('crop')
         .setDescription('植える作物')
         .setRequired(true)
-        .addChoices(...Object.values(CROPS).map(c => ({ name: `${c.emoji} ${c.name}`, value: c.id })))
+        .addChoices(...Object.entries(CROPS).filter(([id]) => id !== 'golden').map(([id, c]) => ({ name: `${c.emoji} ${c.name}`, value: id })))
     )
     .addIntegerOption(opt =>
       opt.setName('slot')
@@ -30,10 +30,7 @@ module.exports = {
     try {
       const { crop } = await plantCrop(interaction.user.id, slotIndex, cropId);
       const payload = await buildFarmPayload(interaction.user.id);
-      payload.content = [
-        `✅ スロット **#${slotIndex + 1}** に ${crop.emoji} **${crop.name}** を植えました！`,
-        `⏱ 収穫まで: **${formatTime(crop.growTime)}** ／ S品質タイミング: 収穫可能後 **${formatTime(crop.optimalWindow / 2)}** 以内`,
-      ].join('\n');
+      payload.content = `✅ スロット **#${slotIndex + 1}** に ${crop.emoji} **${crop.name}** を植えました！（収穫まで: **${formatTime(crop.growTime)}**）`;
       await interaction.editReply(payload);
     } catch (e) {
       const msgs = {
