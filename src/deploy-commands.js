@@ -6,16 +6,15 @@ const path = require('path');
 const commands = [];
 const srcPath = __dirname;
 
+// 各モジュールの index.js が export する commands 配列を使う
 const botDirs = fs.readdirSync(srcPath).filter(entry => {
   const full = path.join(srcPath, entry);
   return fs.statSync(full).isDirectory() && fs.existsSync(path.join(full, 'index.js'));
 });
 
 for (const dir of botDirs) {
-  const commandsPath = path.join(srcPath, dir, 'commands');
-  if (!fs.existsSync(commandsPath)) continue;
-  for (const file of fs.readdirSync(commandsPath).filter(f => f.endsWith('.js'))) {
-    const command = require(path.join(commandsPath, file));
+  const mod = require(path.join(srcPath, dir));
+  for (const command of mod.commands ?? []) {
     if (command.data) commands.push(command.data.toJSON());
   }
 }
