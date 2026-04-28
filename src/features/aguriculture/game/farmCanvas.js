@@ -1,7 +1,4 @@
-// node-canvas が必要: npm install canvas
-// Linux の場合は先に以下を実行:
-//   sudo apt-get install build-essential libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev
-const { createCanvas } = require('canvas');
+const { createCanvas } = require('@napi-rs/canvas');
 const { CROPS } = require('./crops');
 const {
   MAX_SLOTS,
