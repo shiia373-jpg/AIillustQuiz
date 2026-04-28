@@ -1,0 +1,18 @@
+{
+  "coins": 192,
+  "slots": [
+    {
+      "crop": "wheat",
+      "planted_at": 1777413328836
+    },
+    {
+      "crop": "wheat",
+      "planted_at": 1777413242308
+    }
+  ],
+  "seeds": {
+    "wheat": 2
+  },
+  "totalHarvests": 1,
+  "totalCoinsEarned": 92
+}

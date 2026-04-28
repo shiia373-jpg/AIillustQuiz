@@ -37,4 +37,20 @@ async function saveFarm(userId, farm) {
   await fs.rename(tmp, dest);
 }
 
-module.exports = { loadFarm, saveFarm };
+// 農場メッセージの参照を保存（自動更新用）
+async function setFarmMessage(userId, messageId, channelId) {
+  const farm = await loadFarm(userId);
+  farm.activeMessage = { messageId, channelId };
+  await saveFarm(userId, farm);
+}
+
+// 全ユーザーIDを取得（自動更新用）
+async function getAllFarmUserIds() {
+  await fs.mkdir(DATA_DIR, { recursive: true });
+  const files = await fs.readdir(DATA_DIR);
+  return files
+    .filter(f => f.endsWith('.json') && !f.endsWith('.tmp'))
+    .map(f => f.replace('.json', ''));
+}
+
+module.exports = { loadFarm, saveFarm, setFarmMessage, getAllFarmUserIds };

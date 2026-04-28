@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const { loadFarm } = require('./game/farmState');
+const { loadFarm, setFarmMessage } = require('./game/farmState');
 const {
   buildFarmPayload,
   buildSlotPickerPayload,
@@ -48,7 +48,9 @@ async function handleButton(interaction) {
   try {
     // ── 農場表示・更新 ──
     if (customId === 'farm_refresh') {
-      return interaction.editReply(await buildFarmPayload(user.id));
+      await interaction.editReply(await buildFarmPayload(user.id));
+      await setFarmMessage(user.id, interaction.message.id, interaction.channelId);
+      return;
     }
 
     // ── 植えるメニュー（スロット選択）──
@@ -93,9 +95,9 @@ async function handleButton(interaction) {
       const farmPayload = await buildFarmPayload(user.id);
 
       if (result) {
-        const { results, totalCoins, farm } = result;
+        const { results, totalCoins, totalExp, farm, levelUps } = result;
         await interaction.followUp({
-          embeds: [buildHarvestEmbed(results, totalCoins, farm.coins)],
+          embeds: [buildHarvestEmbed(results, totalCoins, totalExp, farm.coins, farm.level, levelUps)],
           ephemeral: true,
         });
       }

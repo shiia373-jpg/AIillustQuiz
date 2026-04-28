@@ -6,6 +6,7 @@ const {
   EmbedBuilder,
 } = require('discord.js');
 const { buildFarmPayload } = require('../aguriculture/game/farmView');
+const { setFarmMessage } = require('../aguriculture/game/farmState');
 const { setGame } = require('../ai-illust-quiz/game/gameState');
 
 const commands = [];
@@ -21,7 +22,8 @@ async function handleButton(interaction) {
   if (customId === 'menu_farm') {
     await interaction.deferReply();
     const payload = await buildFarmPayload(interaction.user.id);
-    await interaction.editReply(payload);
+    const msg = await interaction.editReply(payload);
+    await setFarmMessage(interaction.user.id, msg.id, interaction.channelId);
     return;
   }
 
