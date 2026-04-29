@@ -4,7 +4,7 @@ const { loadFarm, setFarmMessage } = require('./game/farmState');
 const {
   buildFarmPayload,
   buildInteriorPayload,
-  buildVisitPickerPayload,
+  buildVCVisitPayload,
   buildSlotPickerPayload,
   buildCropPickerPayload,
   plantCrop,
@@ -61,9 +61,26 @@ async function handleButton(interaction) {
       return interaction.editReply(await buildInteriorPayload(user.id));
     }
 
-    // ── 訪問メニュー（ユーザー選択）──
+    // ── 訪問メニュー（同じ VC のメンバーから選択）──
     if (customId === 'farm_visit_menu') {
-      return interaction.followUp(buildVisitPickerPayload());
+      const vc = interaction.member?.voice?.channel;
+      if (!vc) {
+        return interaction.followUp({
+          content: '❌ 訪問するにはボイスチャンネルに参加してください。',
+          ephemeral: true,
+        });
+      }
+      const members = [...vc.members.values()]
+        .filter(m => !m.user.bot && m.id !== user.id)
+        .slice(0, 25)
+        .map(m => ({ id: m.id, displayName: m.displayName }));
+      if (members.length === 0) {
+        return interaction.followUp({
+          content: `❌ VC「**${vc.name}**」に他のメンバーがいません。`,
+          ephemeral: true,
+        });
+      }
+      return interaction.followUp(buildVCVisitPayload(members, vc.name));
     }
 
     // ── 農場表示・更新 ──
@@ -138,15 +155,16 @@ async function handleSelectMenu(interaction) {
   if (!customId.startsWith('farm_')) return;
 
   if (customId === 'farm_visit_select') {
-    const target = interaction.users.first();
-    if (!target) return;
+    const targetId = interaction.values?.[0];
+    if (!targetId) return;
 
-    if (target.bot) {
-      return interaction.update({ content: '❌ Bot の部屋には入れません。', components: [] });
-    }
+    const guildMember = interaction.guild?.members.cache.get(targetId);
+    const displayName = guildMember?.displayName
+      ?? (await interaction.client.users.fetch(targetId).catch(() => null))?.username
+      ?? targetId;
 
-    const ownerName = target.id === interaction.user.id ? null : target.displayName ?? target.username;
-    const payload   = await buildInteriorPayload(target.id, ownerName);
+    const ownerName = targetId === interaction.user.id ? null : displayName;
+    const payload   = await buildInteriorPayload(targetId, ownerName);
     return interaction.update({ ...payload, content: null });
   }
 }

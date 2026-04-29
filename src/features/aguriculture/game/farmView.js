@@ -4,7 +4,7 @@ const {
   ActionRowBuilder,
   ButtonBuilder,
   ButtonStyle,
-  UserSelectMenuBuilder,
+  StringSelectMenuBuilder,
 } = require('discord.js');
 const { loadFarm, saveFarm } = require('./farmState');
 const { generateFarmImage, generateInteriorImage } = require('./farmCanvas');
@@ -279,16 +279,20 @@ async function buildInteriorPayload(targetUserId, ownerName = null) {
   return { embeds: [embed], files: [attachment], components: [row] };
 }
 
-function buildVisitPickerPayload() {
+// members: [{ id, displayName }]  vcName: VCの名前
+function buildVCVisitPayload(members, vcName) {
   const row = new ActionRowBuilder().addComponents(
-    new UserSelectMenuBuilder()
+    new StringSelectMenuBuilder()
       .setCustomId('farm_visit_select')
       .setPlaceholder('訪問するプレイヤーを選んでください…')
-      .setMinValues(1)
-      .setMaxValues(1)
+      .addOptions(members.map(m => ({
+        label: m.displayName.slice(0, 100),
+        value: m.id,
+        emoji: '🏠',
+      })))
   );
   return {
-    content: '🏘️ 誰の部屋を訪問しますか？',
+    content: `🏘️ VC「**${vcName}**」のメンバーから選んでください：`,
     components: [row],
     ephemeral: true,
   };
@@ -717,7 +721,7 @@ async function handleHouseShopButton(interaction) {
 module.exports = {
   buildFarmPayload,
   buildInteriorPayload,
-  buildVisitPickerPayload,
+  buildVCVisitPayload,
   buildSlotPickerPayload,
   buildCropPickerPayload,
   plantCrop,
