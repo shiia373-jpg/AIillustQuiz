@@ -42,7 +42,7 @@ async function handleButton(interaction) {
 
   // ショップ表示は ephemeral reply（メインの農場画像はそのまま残す）
   if (customId === 'farm_shop') {
-    const farm = await loadFarm(user.id);
+    const farm = await loadFarm(user.id, interaction.guildId);
     return interaction.reply({
       embeds: [buildShopEmbed(farm)],
       components: buildShopButtons(farm),
@@ -56,21 +56,21 @@ async function handleButton(interaction) {
   try {
     // ── 農場表示・更新 ──
     if (customId === 'farm_refresh') {
-      await interaction.editReply(await buildFarmPayload(user.id));
+      await interaction.editReply(await buildFarmPayload(user.id, interaction.guildId));
       await setFarmMessage(user.id, interaction.message.id, interaction.channelId);
       return;
     }
 
     // ── 植えるメニュー（スロット選択）──
     if (customId === 'farm_plant_menu') {
-      const farm = await loadFarm(user.id);
+      const farm = await loadFarm(user.id, interaction.guildId);
       return interaction.editReply(buildSlotPickerPayload(farm));
     }
 
     // ── スロット選択 → 作物選択 ──
     if (customId.startsWith('farm_plant_slot_')) {
       const slotIndex = parseInt(customId.replace('farm_plant_slot_', ''), 10);
-      const farm = await loadFarm(user.id);
+      const farm = await loadFarm(user.id, interaction.guildId);
       return interaction.editReply(buildCropPickerPayload(farm, slotIndex));
     }
 
@@ -82,8 +82,8 @@ async function handleButton(interaction) {
       const cropId = rest.substring(sep + 1);
 
       try {
-        const { crop } = await plantCrop(user.id, slotIndex, cropId);
-        const payload = await buildFarmPayload(user.id);
+        const { crop } = await plantCrop(user.id, slotIndex, cropId, interaction.guildId);
+        const payload = await buildFarmPayload(user.id, interaction.guildId);
         payload.content = `✅ スロット #${slotIndex + 1} に ${crop.emoji} **${crop.name}** を植えました！`;
         return interaction.editReply(payload);
       } catch (e) {
@@ -93,14 +93,14 @@ async function handleButton(interaction) {
           'slot not unlocked': '❌ そのスロットはまだ解放されていません。',
         };
         await interaction.followUp({ content: msgs[e.message] ?? '❌ エラーが発生しました。', ephemeral: true });
-        return interaction.editReply(await buildFarmPayload(user.id));
+        return interaction.editReply(await buildFarmPayload(user.id, interaction.guildId));
       }
     }
 
     // ── 収穫 → 結果表示 → 農場更新 ──
     if (customId === 'farm_harvest_all') {
-      const result = await harvestAll(user.id);
-      const farmPayload = await buildFarmPayload(user.id);
+      const result = await harvestAll(user.id, interaction.guildId);
+      const farmPayload = await buildFarmPayload(user.id, interaction.guildId);
 
       if (result) {
         const { results, totalCoins, totalExp, farm, levelUps } = result;

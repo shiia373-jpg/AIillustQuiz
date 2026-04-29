@@ -7,6 +7,11 @@ const DATA_DIR = path.join(__dirname, '../data');
 
 const userFilePath = (userId) => path.join(DATA_DIR, `${userId}.json`);
 
+/** 試験場サーバー判定 */
+function isTestGuild(guildId) {
+  return !!(process.env.TEST_GUILD_ID && guildId === process.env.TEST_GUILD_ID);
+}
+
 function createDefaultFarm() {
   return {
     coins: 100,
@@ -23,14 +28,18 @@ function createDefaultFarm() {
   };
 }
 
-async function loadFarm(userId) {
+async function loadFarm(userId, guildId = null) {
   await fs.mkdir(DATA_DIR, { recursive: true });
+  let farm;
   try {
     const raw = await fs.readFile(userFilePath(userId), 'utf8');
-    return JSON.parse(raw);
+    farm = JSON.parse(raw);
   } catch {
-    return createDefaultFarm();
+    farm = createDefaultFarm();
   }
+  // 試験場では所持コインを無制限扱いに
+  if (isTestGuild(guildId)) farm.coins = 999_999_999;
+  return farm;
 }
 
 // アトミックな保存: tmp ファイルに書いてからリネームする
@@ -58,4 +67,4 @@ async function getAllFarmUserIds() {
     .map(f => f.replace('.json', ''));
 }
 
-module.exports = { loadFarm, saveFarm, setFarmMessage, getAllFarmUserIds };
+module.exports = { loadFarm, saveFarm, setFarmMessage, getAllFarmUserIds, isTestGuild };
