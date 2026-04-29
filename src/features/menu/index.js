@@ -21,7 +21,7 @@ async function handleButton(interaction) {
 
   if (customId === 'menu_farm') {
     await interaction.deferReply();
-    const payload = await buildFarmPayload(interaction.user.id, interaction.guildId);
+    const payload = await buildFarmPayload(interaction.user.id);
     const msg = await interaction.editReply(payload);
     await setFarmMessage(interaction.user.id, msg.id, interaction.channelId);
     return;

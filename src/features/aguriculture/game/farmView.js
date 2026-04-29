@@ -22,8 +22,8 @@ const {
 
 // ─── 農場メインビュー ────────────────────────────────────────────────────────
 
-async function buildFarmPayload(userId, guildId = null) {
-  const farm = await loadFarm(userId, guildId);
+async function buildFarmPayload(userId) {
+  const farm = await loadFarm(userId);
   // 既存データに level/exp がなければ補完
   if (!farm.level) farm.level = 1;
   if (!farm.exp)   farm.exp   = 0;
@@ -171,8 +171,8 @@ function buildCropPickerPayload(farm, slotIndex) {
   return { embeds: [embed], files: [], components: rows.slice(0, 5) };
 }
 
-async function plantCrop(userId, slotIndex, cropId, guildId = null) {
-  const farm = await loadFarm(userId, guildId);
+async function plantCrop(userId, slotIndex, cropId) {
+  const farm = await loadFarm(userId);
   const crop = CROPS[cropId];
   if (!crop) throw new Error('unknown crop');
   if (slotIndex >= farm.slots.length) throw new Error('slot not unlocked');
@@ -187,8 +187,8 @@ async function plantCrop(userId, slotIndex, cropId, guildId = null) {
 
 // ─── 収穫フロー ──────────────────────────────────────────────────────────────
 
-async function harvestAll(userId, guildId = null) {
-  const farm = await loadFarm(userId, guildId);
+async function harvestAll(userId) {
+  const farm = await loadFarm(userId);
   if (!farm.level) farm.level = 1;
   if (!farm.exp)   farm.exp   = 0;
 
@@ -326,7 +326,7 @@ async function handleShopButton(interaction) {
   const { customId } = interaction;
 
   if (customId === 'farm_unlock_slot') {
-    const farm = await loadFarm(interaction.user.id, interaction.guildId);
+    const farm = await loadFarm(interaction.user.id);
     const nextSlot = farm.slots.length;
     if (nextSlot >= MAX_SLOTS) {
       return interaction.reply({ content: '❌ これ以上解放できません。', ephemeral: true });
@@ -348,7 +348,7 @@ async function handleShopButton(interaction) {
     const crop = CROPS[cropId];
     if (!crop) return;
 
-    const farm = await loadFarm(interaction.user.id, interaction.guildId);
+    const farm = await loadFarm(interaction.user.id);
     if (crop.buy > 0 && farm.coins < crop.buy) {
       return interaction.reply({ content: `❌ コインが足りません（必要: ${crop.buy} G）`, ephemeral: true });
     }
@@ -528,7 +528,7 @@ async function handleHouseShopButton(interaction) {
   const { customId } = interaction;
 
   if (customId === 'farm_house_shop') {
-    const farm = await loadFarm(interaction.user.id, interaction.guildId);
+    const farm = await loadFarm(interaction.user.id);
     if (!farm.house) farm.house = { ...DEFAULT_HOUSE };
     if (!farm.ownedHouseItems) farm.ownedHouseItems = Object.keys(HOUSE_ITEMS).filter(k => HOUSE_ITEMS[k].price === 0);
     return interaction.reply({
@@ -540,7 +540,7 @@ async function handleHouseShopButton(interaction) {
 
   if (customId.startsWith('farm_house_cat_')) {
     const category = customId.replace('farm_house_cat_', '');
-    const farm = await loadFarm(interaction.user.id, interaction.guildId);
+    const farm = await loadFarm(interaction.user.id);
     if (!farm.house) farm.house = { ...DEFAULT_HOUSE };
     if (!farm.ownedHouseItems) farm.ownedHouseItems = Object.keys(HOUSE_ITEMS).filter(k => HOUSE_ITEMS[k].price === 0);
 
@@ -563,7 +563,7 @@ async function handleHouseShopButton(interaction) {
     const item   = HOUSE_ITEMS[itemId];
     if (!item) return;
 
-    const farm = await loadFarm(interaction.user.id, interaction.guildId);
+    const farm = await loadFarm(interaction.user.id);
     if (!farm.house) farm.house = { ...DEFAULT_HOUSE };
     if (!farm.house.furniture) farm.house.furniture = [];
     if (!farm.ownedHouseItems) farm.ownedHouseItems = Object.keys(HOUSE_ITEMS).filter(k => HOUSE_ITEMS[k].price === 0);
@@ -590,7 +590,7 @@ async function handleHouseShopButton(interaction) {
       embeds: [buildFurnitureEmbed(farm)],
       components: buildFurnitureButtons(farm),
     }).catch(() => {});
-    await buildFarmPayload(interaction.user.id, interaction.guildId).then(p => interaction.message.edit(p)).catch(() => {});
+    await buildFarmPayload(interaction.user.id).then(p => interaction.message.edit(p)).catch(() => {});
     return;
   }
 
@@ -600,7 +600,7 @@ async function handleHouseShopButton(interaction) {
     const item   = HOUSE_ITEMS[itemId];
     if (!item) return;
 
-    const farm = await loadFarm(interaction.user.id, interaction.guildId);
+    const farm = await loadFarm(interaction.user.id);
     if (!farm.house) farm.house = { ...DEFAULT_HOUSE };
     if (!farm.house.furniture) farm.house.furniture = [];
 
@@ -611,7 +611,7 @@ async function handleHouseShopButton(interaction) {
       embeds: [buildFurnitureEmbed(farm)],
       components: buildFurnitureButtons(farm),
     });
-    await buildFarmPayload(interaction.user.id, interaction.guildId).then(p => interaction.message.edit(p)).catch(() => {});
+    await buildFarmPayload(interaction.user.id).then(p => interaction.message.edit(p)).catch(() => {});
     return;
   }
 
@@ -620,7 +620,7 @@ async function handleHouseShopButton(interaction) {
     const item   = HOUSE_ITEMS[itemId];
     if (!item) return;
 
-    const farm = await loadFarm(interaction.user.id, interaction.guildId);
+    const farm = await loadFarm(interaction.user.id);
     if (!farm.house) farm.house = { ...DEFAULT_HOUSE };
     if (!farm.ownedHouseItems) farm.ownedHouseItems = Object.keys(HOUSE_ITEMS).filter(k => HOUSE_ITEMS[k].price === 0);
 
@@ -645,7 +645,7 @@ async function handleHouseShopButton(interaction) {
     });
 
     // 農場画像も更新
-    const payload = await buildFarmPayload(interaction.user.id, interaction.guildId);
+    const payload = await buildFarmPayload(interaction.user.id);
     await interaction.message.edit(payload).catch(() => {});
   }
 }
