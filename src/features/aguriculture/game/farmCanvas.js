@@ -892,10 +892,10 @@ function drawInterior(ctx, house, startY) {
     ctx.textBaseline = 'middle';
     ctx.fillText('家具がありません', px + panelW / 2, py + (panelH - floorH) / 2 + 4);
   } else {
-    const maxPerRow = 8;
-    const iconSize  = 28;
+    const maxPerRow = 5;
+    const iconSize  = 42;
     const iconPad   = (panelW - maxPerRow * iconSize) / (maxPerRow + 1);
-    const iconRowY  = py + (panelH - floorH) / 2;
+    const iconRowY  = py + (panelH - floorH) * 0.38;
 
     furniture.slice(0, MAX_FURNITURE).forEach((id, i) => {
       const fi  = items[id];
@@ -903,20 +903,20 @@ function drawInterior(ctx, house, startY) {
       const col = i % maxPerRow;
       const row = Math.floor(i / maxPerRow);
       const ix  = px + iconPad + col * (iconSize + iconPad) + iconSize / 2;
-      const iy  = iconRowY + row * (iconSize + 6) - 4;
+      const iy  = iconRowY + row * (iconSize + 10);
 
       // 家具影
-      ctx.fillStyle = 'rgba(0,0,0,0.25)';
+      ctx.fillStyle = 'rgba(0,0,0,0.22)';
       ctx.beginPath();
-      ctx.ellipse(ix, iy + iconSize / 2 - 2, iconSize / 2 - 2, 4, 0, 0, Math.PI * 2);
+      ctx.ellipse(ix, iy + iconSize * 0.52, iconSize * 0.42, iconSize * 0.09, 0, 0, Math.PI * 2);
       ctx.fill();
 
-      drawFurnItem(ctx, id, ix, iy + iconSize*0.30, iconSize * 0.80);
+      drawFurnItem(ctx, id, ix, iy + iconSize * 0.44, iconSize * 0.90);
       ctx.textBaseline = 'alphabetic';
-      ctx.fillStyle    = 'rgba(0,0,0,0.55)';
-      ctx.font         = '8px sans-serif';
+      ctx.fillStyle    = 'rgba(255,255,255,0.75)';
+      ctx.font         = `bold 9px sans-serif`;
       ctx.textAlign    = 'center';
-      ctx.fillText(fi.name, ix, iy + iconSize / 2 - 1);
+      ctx.fillText(fi.name, ix, iy + iconSize * 0.60);
     });
   }
 
@@ -2866,16 +2866,19 @@ function generateInteriorImage(farm, ownerName = null) {
     const rx = BX2 + (W   - BX2) * fy;
     const sx = lx + (rx - lx) * fx;
     const sy = BY2 + (FY - BY2) * fy;
-    return { x: sx, y: sy, scale: 0.45 + fy * 0.95 };
+    // スケール：奥でも十分な大きさが出るよう底上げ
+    return { x: sx, y: sy, scale: 0.62 + fy * 0.62 };
   }
 
+  // 家具配置座標（奥→手前の順、壁際から中央へ）
   const positions = [
-    { fx: 0.12, fy: 0.08 }, { fx: 0.88, fy: 0.08 },
-    { fx: 0.40, fy: 0.08 }, { fx: 0.60, fy: 0.08 },
-    { fx: 0.22, fy: 0.34 }, { fx: 0.78, fy: 0.34 },
-    { fx: 0.50, fy: 0.22 },
-    { fx: 0.18, fy: 0.55 }, { fx: 0.82, fy: 0.55 },
-    { fx: 0.35, fy: 0.82 }, { fx: 0.65, fy: 0.82 },
+    { fx: 0.13, fy: 0.22 }, { fx: 0.87, fy: 0.22 },  // 奥・左右壁際
+    { fx: 0.50, fy: 0.16 },                             // 奥・中央
+    { fx: 0.27, fy: 0.45 }, { fx: 0.73, fy: 0.45 },  // 中間・左右
+    { fx: 0.50, fy: 0.40 },                             // 中間・中央
+    { fx: 0.16, fy: 0.67 }, { fx: 0.84, fy: 0.67 },  // 手前・左右
+    { fx: 0.50, fy: 0.58 },                             // 手前・中央
+    { fx: 0.34, fy: 0.85 }, { fx: 0.66, fy: 0.85 },  // 最前・左右
   ];
 
   const furnitureTop = house.furnitureTop ?? {};
@@ -2910,12 +2913,12 @@ function generateInteriorImage(farm, ownerName = null) {
     }
 
     const { x, y, scale } = perspPos(pos.fx, pos.fy);
-    const fs = Math.floor(90 * scale);
+    const fs = Math.floor(148 * scale);
 
     // 床影
-    ctx.fillStyle = 'rgba(0,0,0,0.18)';
+    ctx.fillStyle = 'rgba(0,0,0,0.20)';
     ctx.beginPath();
-    ctx.ellipse(x, y + 3, fs * 0.44, fs * 0.12, 0, 0, Math.PI * 2);
+    ctx.ellipse(x, y + 4, fs * 0.48, fs * 0.13, 0, 0, Math.PI * 2);
     ctx.fill();
 
     // 家具本体を描画
@@ -2924,7 +2927,6 @@ function generateInteriorImage(farm, ownerName = null) {
     // 机・棚・キッチンの上の小物を描画
     const topItems = furnitureTop[id] ?? [];
     if (topItems.length > 0 && item.topSlots) {
-      // 天板Y（家具の天面）を推定
       let topSurfaceY;
       if (id === 'furn_wood_desk' || id === 'furn_kitchen') {
         topSurfaceY = y - fs * 0.54;
@@ -2933,12 +2935,11 @@ function generateInteriorImage(farm, ownerName = null) {
       } else {
         topSurfaceY = y - fs * 0.70;
       }
-      const topR   = fs * 0.22;
+      const topR   = fs * 0.24;
       const totalW = topItems.length * topR * 2.8;
       topItems.forEach((topId, ti) => {
         const tx = x - totalW/2 + topR*1.4 + ti * topR*2.8;
         const ty = topSurfaceY - topR * 0.6;
-        // 小物の影
         ctx.fillStyle = 'rgba(0,0,0,0.20)';
         ctx.beginPath();
         ctx.ellipse(tx, topSurfaceY, topR*0.6, topR*0.12, 0, 0, Math.PI*2);
@@ -2947,9 +2948,9 @@ function generateInteriorImage(farm, ownerName = null) {
       });
     }
 
-    // 家具名
-    const nfs = Math.max(7, Math.floor(9 * scale));
-    ctx.fillStyle    = 'rgba(255,255,255,0.52)';
+    // 家具名ラベル
+    const nfs = Math.max(8, Math.floor(10 * scale));
+    ctx.fillStyle    = 'rgba(255,255,255,0.60)';
     ctx.font         = `${nfs}px sans-serif`;
     ctx.textAlign    = 'center';
     ctx.textBaseline = 'top';
