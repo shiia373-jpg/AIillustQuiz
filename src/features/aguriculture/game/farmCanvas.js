@@ -1318,6 +1318,210 @@ function drawTopItem(ctx, id, cx, cy, r) {
 
 // ── 家具1アイテムを統一的に描画 ──────────────────────────────────────────────
 // cx, cy = 底面中心, size = 基準サイズ（fs）
+// ── シャンデリア ─────────────────────────────────────────────────────────────
+function drawChandelier(ctx, cx, cy, r) {
+  ctx.save();
+  // 暖かいオーラ（床への光）
+  const glow = ctx.createRadialGradient(cx, cy + r * 0.5, r * 0.1, cx, cy + r * 0.5, r * 2.4);
+  glow.addColorStop(0,   'rgba(255,220,80,0.55)');
+  glow.addColorStop(0.4, 'rgba(255,180,40,0.22)');
+  glow.addColorStop(1,   'rgba(255,140,0,0)');
+  ctx.fillStyle = glow;
+  ctx.beginPath(); ctx.arc(cx, cy + r * 0.5, r * 2.4, 0, Math.PI * 2); ctx.fill();
+
+  // 5本のアーム（左右に広がる）
+  const armOffsets = [-0.92, -0.46, 0, 0.46, 0.92];
+  armOffsets.forEach(oa => {
+    const ax  = cx + oa * r;
+    const ayS = cy + Math.abs(oa) * r * 0.18;  // 端ほど少し下がる
+    const ay  = ayS + r * 0.10;
+
+    // アーム本体（カーブ）
+    ctx.strokeStyle = '#C8A820'; ctx.lineWidth = Math.max(2, r * 0.09);
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.quadraticCurveTo((cx + ax) * 0.5, cy + r * 0.06, ax, ayS);
+    ctx.stroke();
+
+    // 短い吊り棒
+    const cupY = ay + r * 0.16;
+    ctx.lineWidth = Math.max(1.2, r * 0.055);
+    ctx.beginPath(); ctx.moveTo(ax, ayS); ctx.lineTo(ax, cupY); ctx.stroke();
+
+    // ロウソク受け皿
+    ctx.fillStyle = '#B89018';
+    ctx.beginPath(); ctx.ellipse(ax, cupY, r * 0.11, r * 0.055, 0, 0, Math.PI * 2); ctx.fill();
+
+    // ロウソク本体
+    ctx.fillStyle = '#F5EDD5';
+    ctx.fillRect(ax - r * 0.058, cupY - r * 0.20, r * 0.116, r * 0.20);
+
+    // 炎グロー
+    ctx.save();
+    ctx.shadowColor = 'rgba(255,200,60,0.95)'; ctx.shadowBlur = r * 0.5;
+    ctx.fillStyle = 'rgba(255,120,20,0.80)';
+    ctx.beginPath(); ctx.ellipse(ax, cupY - r * 0.29, r * 0.10, r * 0.18, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#FFEE60';
+    ctx.beginPath(); ctx.ellipse(ax, cupY - r * 0.31, r * 0.062, r * 0.11, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.restore();
+  });
+
+  // 中心ハブ（金色の球）
+  const hubGrad = ctx.createRadialGradient(cx - r*0.10, cy - r*0.13, 0, cx, cy, r * 0.36);
+  hubGrad.addColorStop(0,   '#FFE898');
+  hubGrad.addColorStop(0.5, '#D4A820');
+  hubGrad.addColorStop(1,   '#806010');
+  ctx.fillStyle = hubGrad;
+  ctx.beginPath(); ctx.arc(cx, cy, r * 0.36, 0, Math.PI * 2); ctx.fill();
+
+  // ハブリング
+  ctx.save();
+  ctx.shadowColor = 'rgba(255,200,80,0.60)'; ctx.shadowBlur = r * 0.3;
+  ctx.strokeStyle = '#FFD040'; ctx.lineWidth = Math.max(1.5, r * 0.065);
+  ctx.beginPath(); ctx.arc(cx, cy, r * 0.50, 0, Math.PI * 2); ctx.stroke();
+  ctx.restore();
+
+  // ハブハイライト
+  ctx.fillStyle = 'rgba(255,255,255,0.52)';
+  ctx.beginPath(); ctx.arc(cx - r*0.10, cy - r*0.12, r * 0.10, 0, Math.PI * 2); ctx.fill();
+
+  // ボトムペンダント（水晶）
+  const pCy = cy + r * 0.56;
+  ctx.strokeStyle = '#C8A820'; ctx.lineWidth = Math.max(1, r * 0.045);
+  ctx.beginPath(); ctx.moveTo(cx, cy + r * 0.36); ctx.lineTo(cx, pCy - r * 0.08); ctx.stroke();
+  ctx.save();
+  ctx.shadowColor = '#A0D8FF'; ctx.shadowBlur = r * 0.55;
+  const cryGrad = ctx.createLinearGradient(cx, pCy - r*0.22, cx, pCy + r*0.24);
+  cryGrad.addColorStop(0,   '#D8F0FF');
+  cryGrad.addColorStop(0.5, '#70BCFF');
+  cryGrad.addColorStop(1,   '#3080D0');
+  ctx.fillStyle = cryGrad;
+  ctx.beginPath();
+  ctx.moveTo(cx, pCy - r * 0.22);
+  ctx.lineTo(cx + r * 0.14, pCy + r * 0.04);
+  ctx.lineTo(cx, pCy + r * 0.26);
+  ctx.lineTo(cx - r * 0.14, pCy + r * 0.04);
+  ctx.closePath(); ctx.fill();
+  ctx.fillStyle = 'rgba(255,255,255,0.55)';
+  ctx.beginPath(); ctx.arc(cx - r*0.04, pCy - r*0.08, r*0.05, 0, Math.PI*2); ctx.fill();
+  ctx.restore();
+  ctx.restore();
+}
+
+// ── サボテン ─────────────────────────────────────────────────────────────────
+function drawCactus(ctx, cx, cy, size) {
+  const s = size;
+  // 鉢
+  const potGrad = ctx.createLinearGradient(cx - s*0.25, cy - s*0.10, cx + s*0.25, cy);
+  potGrad.addColorStop(0, '#C06020'); potGrad.addColorStop(1, '#803010');
+  ctx.fillStyle = potGrad;
+  ctx.beginPath();
+  ctx.moveTo(cx - s*0.28, cy - s*0.14); ctx.lineTo(cx + s*0.28, cy - s*0.14);
+  ctx.lineTo(cx + s*0.22, cy);          ctx.lineTo(cx - s*0.22, cy);
+  ctx.closePath(); ctx.fill();
+  ctx.fillStyle = '#E07830';
+  ctx.fillRect(cx - s*0.30, cy - s*0.18, s*0.60, s*0.06);
+
+  // 本体幹（緑）
+  const bodyGrad = ctx.createLinearGradient(cx - s*0.18, cy - s*1.0, cx + s*0.18, cy - s*0.12);
+  bodyGrad.addColorStop(0, '#60C040'); bodyGrad.addColorStop(1, '#308020');
+  ctx.fillStyle = bodyGrad;
+  roundRect(ctx, cx - s*0.18, cy - s*1.02, s*0.36, s*0.90, s*0.18);
+  ctx.fill();
+
+  // 左アーム
+  ctx.fillStyle = '#50A838';
+  roundRect(ctx, cx - s*0.42, cy - s*0.70, s*0.26, s*0.14, s*0.07);
+  ctx.fill();
+  roundRect(ctx, cx - s*0.44, cy - s*0.90, s*0.14, s*0.25, s*0.07);
+  ctx.fill();
+
+  // 右アーム
+  roundRect(ctx, cx + s*0.16, cy - s*0.55, s*0.26, s*0.14, s*0.07);
+  ctx.fill();
+  roundRect(ctx, cx + s*0.30, cy - s*0.75, s*0.14, s*0.25, s*0.07);
+  ctx.fill();
+
+  // トゲ（小さい線）
+  ctx.strokeStyle = '#F0E8C0'; ctx.lineWidth = Math.max(0.8, s*0.025); ctx.lineCap = 'round';
+  [[-0.02, -0.92], [0.06, -0.72], [-0.06, -0.55], [0.04, -0.38]].forEach(([ox, oy]) => {
+    ctx.beginPath(); ctx.moveTo(cx + ox*s, cy + oy*s); ctx.lineTo(cx + (ox+0.10)*s, cy + (oy-0.08)*s); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx + ox*s, cy + oy*s); ctx.lineTo(cx + (ox-0.10)*s, cy + (oy-0.08)*s); ctx.stroke();
+  });
+  ctx.lineCap = 'butt';
+
+  // 頂上の花
+  ctx.save();
+  ctx.shadowColor = 'rgba(255,100,150,0.6)'; ctx.shadowBlur = s*0.2;
+  for (let p = 0; p < 5; p++) {
+    const fa = (p/5)*Math.PI*2;
+    ctx.fillStyle = '#FF70A0';
+    ctx.beginPath(); ctx.ellipse(cx + Math.cos(fa)*s*0.12, cy - s*1.02 + Math.sin(fa)*s*0.10, s*0.10, s*0.07, fa, 0, Math.PI*2); ctx.fill();
+  }
+  ctx.fillStyle = '#FFE060';
+  ctx.beginPath(); ctx.arc(cx, cy - s*1.02, s*0.07, 0, Math.PI*2); ctx.fill();
+  ctx.restore();
+}
+
+// ── くまのぬいぐるみ ──────────────────────────────────────────────────────────
+function drawTeddyBear(ctx, cx, cy, size) {
+  const s = size;
+  // 影
+  ctx.fillStyle = 'rgba(0,0,0,0.18)';
+  ctx.beginPath(); ctx.ellipse(cx, cy + s*0.04, s*0.42, s*0.10, 0, 0, Math.PI*2); ctx.fill();
+
+  // 体（楕円）
+  const bodyGrad = ctx.createRadialGradient(cx - s*0.12, cy - s*0.18, 0, cx, cy - s*0.10, s*0.60);
+  bodyGrad.addColorStop(0, '#E8A860'); bodyGrad.addColorStop(1, '#A06020');
+  ctx.fillStyle = bodyGrad;
+  ctx.beginPath(); ctx.ellipse(cx, cy - s*0.14, s*0.40, s*0.50, 0, 0, Math.PI*2); ctx.fill();
+
+  // お腹（明るいベージュ）
+  ctx.fillStyle = '#F0CC90';
+  ctx.beginPath(); ctx.ellipse(cx, cy - s*0.08, s*0.25, s*0.33, 0, 0, Math.PI*2); ctx.fill();
+
+  // 左腕
+  ctx.fillStyle = '#C08030';
+  ctx.beginPath(); ctx.ellipse(cx - s*0.46, cy - s*0.22, s*0.18, s*0.28, 0.5, 0, Math.PI*2); ctx.fill();
+  // 右腕
+  ctx.beginPath(); ctx.ellipse(cx + s*0.46, cy - s*0.16, s*0.18, s*0.28, -0.5, 0, Math.PI*2); ctx.fill();
+
+  // 脚
+  ctx.beginPath(); ctx.ellipse(cx - s*0.20, cy + s*0.34, s*0.18, s*0.14, 0, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(cx + s*0.20, cy + s*0.34, s*0.18, s*0.14, 0, 0, Math.PI*2); ctx.fill();
+
+  // 頭
+  const headGrad = ctx.createRadialGradient(cx - s*0.10, cy - s*0.80, 0, cx, cy - s*0.70, s*0.44);
+  headGrad.addColorStop(0, '#EEB058'); headGrad.addColorStop(1, '#A06020');
+  ctx.fillStyle = headGrad;
+  ctx.beginPath(); ctx.arc(cx, cy - s*0.70, s*0.40, 0, Math.PI*2); ctx.fill();
+
+  // 耳
+  ctx.fillStyle = '#C08030';
+  ctx.beginPath(); ctx.arc(cx - s*0.30, cy - s*1.02, s*0.16, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(cx + s*0.30, cy - s*1.02, s*0.16, 0, Math.PI*2); ctx.fill();
+  ctx.fillStyle = '#E8A060';
+  ctx.beginPath(); ctx.arc(cx - s*0.30, cy - s*1.02, s*0.09, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(cx + s*0.30, cy - s*1.02, s*0.09, 0, Math.PI*2); ctx.fill();
+
+  // 顔パーツ
+  // 鼻
+  ctx.fillStyle = '#804020';
+  ctx.beginPath(); ctx.ellipse(cx, cy - s*0.65, s*0.12, s*0.08, 0, 0, Math.PI*2); ctx.fill();
+  // 目
+  ctx.fillStyle = '#1A0E06';
+  ctx.beginPath(); ctx.arc(cx - s*0.16, cy - s*0.80, s*0.065, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(cx + s*0.16, cy - s*0.80, s*0.065, 0, Math.PI*2); ctx.fill();
+  // 目のキラキラ
+  ctx.fillStyle = 'rgba(255,255,255,0.80)';
+  ctx.beginPath(); ctx.arc(cx - s*0.13, cy - s*0.83, s*0.025, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(cx + s*0.19, cy - s*0.83, s*0.025, 0, Math.PI*2); ctx.fill();
+  // スマイル
+  ctx.strokeStyle = '#804020'; ctx.lineWidth = Math.max(1, s*0.045); ctx.lineCap = 'round';
+  ctx.beginPath(); ctx.arc(cx, cy - s*0.60, s*0.14, 0.18, Math.PI - 0.18); ctx.stroke();
+  ctx.lineCap = 'butt';
+}
+
 function drawFurnItem(ctx, id, cx, cy, size) {
   if (id === 'furn_yamii_plush') {
     drawYamiiPlush(ctx, cx, cy - size*0.52, size*0.52);
@@ -1353,6 +1557,18 @@ function drawFurnItem(ctx, id, cx, cy, size) {
   }
   if (id === 'furn_kitchen') {
     drawKitchen(ctx, cx - size*0.55, cy - size*0.60, size*1.10, size*0.60);
+    return;
+  }
+  if (id === 'furn_chandelier') {
+    drawChandelier(ctx, cx, cy - size * 0.30, size * 0.55);
+    return;
+  }
+  if (id === 'furn_cactus') {
+    drawCactus(ctx, cx, cy, size * 0.52);
+    return;
+  }
+  if (id === 'furn_teddy_bear') {
+    drawTeddyBear(ctx, cx, cy, size * 0.52);
     return;
   }
   // デフォルト: 絵文字
@@ -2673,21 +2889,28 @@ function generateInteriorImage(farm, ownerName = null) {
     const item = HOUSE_ITEMS[id];
     if (!item) continue;
 
-    // シャンデリアは天井から吊るす
+    // シャンデリアは天井中央から吊るす（カスタム描画）
     if (id === 'furn_chandelier') {
-      const cx = W / 2;
-      const cy = BY1 + (BY2 - BY1) * 0.1;
-      ctx.strokeStyle = 'rgba(180,140,60,0.5)';
-      ctx.lineWidth = 1.5;
-      ctx.beginPath(); ctx.moveTo(cx, BY1 + 5); ctx.lineTo(cx, cy - 20); ctx.stroke();
-      ctx.shadowColor = '#FFD700'; ctx.shadowBlur = 24;
-      ctx.font = '38px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-      ctx.fillStyle = '#FFFFFF'; ctx.fillText(item.emoji, cx, cy);
-      ctx.shadowBlur = 0; continue;
+      const chanCX = W / 2;
+      const chanCY = BY1 + (BY2 - BY1) * 0.22;   // 天井近くに配置
+      const chanR  = 50;
+      // チェーン（天井 → シャンデリア上部）
+      ctx.save();
+      ctx.strokeStyle = '#C0A030'; ctx.lineWidth = 2.5;
+      ctx.setLineDash([4, 3]);
+      ctx.beginPath(); ctx.moveTo(chanCX, HDR + 6); ctx.lineTo(chanCX, chanCY - chanR * 0.35); ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.restore();
+      drawChandelier(ctx, chanCX, chanCY, chanR);
+      // 名前ラベル
+      ctx.fillStyle = 'rgba(255,255,255,0.45)';
+      ctx.font = '8px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+      ctx.fillText(item.name, chanCX, chanCY + chanR * 1.0);
+      continue;
     }
 
     const { x, y, scale } = perspPos(pos.fx, pos.fy);
-    const fs = Math.floor(32 * scale);
+    const fs = Math.floor(90 * scale);
 
     // 床影
     ctx.fillStyle = 'rgba(0,0,0,0.18)';
