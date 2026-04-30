@@ -1307,31 +1307,31 @@ function drawYamii(ctx, x, y, r, glowAlpha = 0.8) {
   const cx = x, cy = y;
 
   // ── 地面の影（楕円）
-  ctx.fillStyle = `rgba(230,100,160,${glowAlpha * 0.22})`;
+  ctx.fillStyle = `rgba(180,185,200,${glowAlpha * 0.22})`;
   ctx.beginPath();
   ctx.ellipse(cx + r * 0.08, cy + r * 1.18, r * 0.75, r * 0.18, 0, 0, Math.PI * 2);
   ctx.fill();
 
-  // ── 柔らかいピンクオーラ
+  // ── 白いオーラ
   const aura = ctx.createRadialGradient(cx, cy, r * 0.3, cx, cy, r * 2.2);
-  aura.addColorStop(0,    `rgba(255,190,225,${glowAlpha * 0.38})`);
-  aura.addColorStop(0.45, `rgba(255,160,205,${glowAlpha * 0.18})`);
-  aura.addColorStop(0.75, `rgba(255,200,230,${glowAlpha * 0.07})`);
+  aura.addColorStop(0,    `rgba(220,230,255,${glowAlpha * 0.38})`);
+  aura.addColorStop(0.45, `rgba(200,215,245,${glowAlpha * 0.18})`);
+  aura.addColorStop(0.75, `rgba(215,225,255,${glowAlpha * 0.07})`);
   aura.addColorStop(1,    'rgba(0,0,0,0)');
   ctx.fillStyle = aura;
   ctx.beginPath();
   ctx.arc(cx, cy, r * 2.2, 0, Math.PI * 2);
   ctx.fill();
 
-  // ── ミニハートパーティクル（オーラ内に浮かぶ）
+  // ── ミニ星パーティクル（オーラ内に浮かぶ）
   if (glowAlpha > 0.5) {
     ctx.save();
     ctx.font = `${r * 0.22}px sans-serif`;
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
     [[-1.55, -0.60], [1.45, -0.80], [-1.30, 0.30], [1.55, 0.15]].forEach(([ox, oy], i) => {
-      ctx.globalAlpha = glowAlpha * (0.45 + i * 0.08);
-      ctx.fillStyle = i % 2 === 0 ? '#FFB0D0' : '#FFD0E8';
-      ctx.fillText('♡', cx + r * ox, cy + r * oy);
+      ctx.globalAlpha = glowAlpha * (0.35 + i * 0.06);
+      ctx.fillStyle = i % 2 === 0 ? '#D0D8F0' : '#B8C8E8';
+      ctx.fillText('✦', cx + r * ox, cy + r * oy);
     });
     ctx.globalAlpha = 1;
     ctx.restore();
@@ -1341,13 +1341,13 @@ function drawYamii(ctx, x, y, r, glowAlpha = 0.8) {
   ctx.save();
   ctx.translate(cx - r * 0.92, cy + r * 0.12);
   ctx.rotate(-0.35);
-  ctx.fillStyle = '#D06090';
+  ctx.fillStyle = '#C0C8D8';
   ctx.beginPath();
   ctx.ellipse(0, 0, r * 0.31 + r * 0.05, r * 0.21 + r * 0.05, 0, 0, Math.PI * 2);
   ctx.fill();
   const armGrad = ctx.createLinearGradient(-r * 0.3, -r * 0.2, r * 0.3, r * 0.2);
-  armGrad.addColorStop(0, '#FFF5FA');
-  armGrad.addColorStop(1, '#FFD8EE');
+  armGrad.addColorStop(0, '#FFFFFF');
+  armGrad.addColorStop(1, '#EEF0F8');
   ctx.fillStyle = armGrad;
   ctx.beginPath();
   ctx.ellipse(0, 0, r * 0.31, r * 0.21, 0, 0, Math.PI * 2);
@@ -1358,13 +1358,13 @@ function drawYamii(ctx, x, y, r, glowAlpha = 0.8) {
   ctx.save();
   ctx.translate(cx + r * 0.90, cy - r * 0.10);
   ctx.rotate(0.55);
-  ctx.fillStyle = '#D06090';
+  ctx.fillStyle = '#C0C8D8';
   ctx.beginPath();
   ctx.ellipse(0, 0, r * 0.28 + r * 0.05, r * 0.19 + r * 0.05, 0, 0, Math.PI * 2);
   ctx.fill();
   const armGrad2 = ctx.createLinearGradient(-r * 0.3, -r * 0.2, r * 0.3, r * 0.2);
-  armGrad2.addColorStop(0, '#FFF5FA');
-  armGrad2.addColorStop(1, '#FFD8EE');
+  armGrad2.addColorStop(0, '#EEF0F8');
+  armGrad2.addColorStop(1, '#FFFFFF');
   ctx.fillStyle = armGrad2;
   ctx.beginPath();
   ctx.ellipse(0, 0, r * 0.28, r * 0.19, 0, 0, Math.PI * 2);
@@ -1373,32 +1373,32 @@ function drawYamii(ctx, x, y, r, glowAlpha = 0.8) {
 
   // ── 体（おばけ本体）アウトライン
   ctx.save();
-  ctx.shadowColor = `rgba(230,80,150,${glowAlpha * 0.50})`;
+  ctx.shadowColor = `rgba(160,170,200,${glowAlpha * 0.50})`;
   ctx.shadowBlur  = r * 0.65;
   yamiiPath(ctx, cx, cy, r * 1.06);
-  ctx.fillStyle = '#D06090';
+  ctx.fillStyle = '#C0C8D8';
   ctx.fill();
   ctx.shadowBlur = 0;
   ctx.restore();
 
-  // ── 体本体グラデーション（白→ピンク）
+  // ── 体本体グラデーション（純白→淡グレー）
   yamiiPath(ctx, cx, cy, r);
   const bodyGrad = ctx.createLinearGradient(cx - r, cy - r, cx + r * 0.6, cy + r * 1.1);
-  bodyGrad.addColorStop(0,    '#FFFBFE');  // 上：ほぼ白
-  bodyGrad.addColorStop(0.20, '#FFEEF8');  // 淡ピンク
-  bodyGrad.addColorStop(0.55, '#FFC8E4');  // ピンク
-  bodyGrad.addColorStop(1,    '#F0A0C8');  // 濃いめピンク
+  bodyGrad.addColorStop(0,    '#FFFFFF');  // 上：純白
+  bodyGrad.addColorStop(0.20, '#F8F9FF');  // 極淡ブルー白
+  bodyGrad.addColorStop(0.55, '#ECEEF8');  // 淡グレー
+  bodyGrad.addColorStop(1,    '#D8DCF0');  // やや青みグレー
   ctx.fillStyle = bodyGrad;
   ctx.fill();
 
-  // ── ふわふわテクスチャ（体に淡いピンクの点）
+  // ── ふわふわテクスチャ（体に淡いグレーの点）
   yamiiPath(ctx, cx, cy, r);
   ctx.save();
   ctx.clip();
   for (let di = 0; di < 6; di++) {
     const da = (di / 6) * Math.PI * 2;
     const dd = r * 0.38;
-    ctx.fillStyle = 'rgba(255,180,210,0.18)';
+    ctx.fillStyle = 'rgba(180,190,215,0.15)';
     ctx.beginPath();
     ctx.arc(cx + Math.cos(da)*dd, cy + Math.sin(da)*dd*0.55 + r*0.15, r*0.18, 0, Math.PI*2);
     ctx.fill();
@@ -1448,17 +1448,17 @@ function drawYamii(ctx, x, y, r, glowAlpha = 0.8) {
   const eyeY  = cy - r * 0.06;
   for (const sign of [-1, 1]) {
     const ex = cx + sign * r * 0.29;
-    // 目の縁（ピンク系）
-    ctx.fillStyle = '#6A2040';
+    // 目の縁（濃いグレー）
+    ctx.fillStyle = '#555870';
     ctx.beginPath();
     ctx.arc(ex, eyeY, eyeR * 1.08, 0, Math.PI * 2);
     ctx.fill();
-    ctx.fillStyle = '#3A1828';
+    ctx.fillStyle = '#2A2C38';
     ctx.beginPath();
     ctx.arc(ex, eyeY, eyeR, 0, Math.PI * 2);
     ctx.fill();
-    // 虹彩（紫がかったピンク）
-    ctx.fillStyle = '#8A3060';
+    // 虹彩（深ブルーグレー）
+    ctx.fillStyle = '#485878';
     ctx.beginPath();
     ctx.arc(ex, eyeY + eyeR * 0.08, eyeR * 0.68, 0, Math.PI * 2);
     ctx.fill();
@@ -1474,7 +1474,7 @@ function drawYamii(ctx, x, y, r, glowAlpha = 0.8) {
     ctx.fill();
     // まつ毛（上）
     if (r >= 14) {
-      ctx.strokeStyle = '#3A1828';
+      ctx.strokeStyle = '#2A2C38';
       ctx.lineWidth = r * 0.042;
       ctx.lineCap = 'round';
       for (let li = 0; li < 3; li++) {
@@ -1488,35 +1488,22 @@ function drawYamii(ctx, x, y, r, glowAlpha = 0.8) {
     }
   }
 
-  // ── ほっぺ（濃いめピンク + ハートきらめき）
-  ctx.fillStyle = 'rgba(255,130,170,0.55)';
+  // ── ほっぺ（淡いピンク）
+  ctx.fillStyle = 'rgba(255,170,195,0.40)';
   ctx.beginPath();
   ctx.ellipse(cx - r * 0.52, cy + r * 0.20, r * 0.24, r * 0.14, 0, 0, Math.PI * 2);
   ctx.fill();
   ctx.beginPath();
   ctx.ellipse(cx + r * 0.52, cy + r * 0.20, r * 0.24, r * 0.14, 0, 0, Math.PI * 2);
   ctx.fill();
-  // ほっぺ内ハート（小さい）
-  if (r >= 16) {
-    ctx.font = `${r * 0.14}px sans-serif`;
-    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    ctx.fillStyle = 'rgba(255,80,130,0.55)';
-    ctx.fillText('♡', cx - r * 0.52, cy + r * 0.20);
-    ctx.fillText('♡', cx + r * 0.52, cy + r * 0.20);
-  }
 
-  // ── 口（ハッピースマイル）
-  ctx.strokeStyle = '#E0507A';
+  // ── 口（スマイル）
+  ctx.strokeStyle = '#909DB8';
   ctx.lineWidth   = r * 0.090;
   ctx.lineCap     = 'round';
   ctx.beginPath();
   ctx.arc(cx, cy + r * 0.32, r * 0.16, 0.12, Math.PI - 0.12);
   ctx.stroke();
-  // 舌
-  ctx.fillStyle = '#FF7090';
-  ctx.beginPath();
-  ctx.ellipse(cx, cy + r * 0.43, r * 0.10, r * 0.07, 0, 0, Math.PI * 2);
-  ctx.fill();
   ctx.lineCap = 'butt';
 }
 
@@ -1524,25 +1511,25 @@ function drawYamii(ctx, x, y, r, glowAlpha = 0.8) {
 // ぬいぐるみ版：縫い目・タグ付きのふわふわヤミー
 function drawYamiiPlush(ctx, x, y, r) {
   // 地面影
-  ctx.fillStyle = 'rgba(220,110,160,0.20)';
+  ctx.fillStyle = 'rgba(170,175,195,0.20)';
   ctx.beginPath();
   ctx.ellipse(x + r * 0.08, y + r * 1.20, r * 0.72, r * 0.17, 0, 0, Math.PI * 2);
   ctx.fill();
 
   // ── 左腕（ぬいぐるみ感・楕円）
-  ctx.fillStyle = '#D878A8';
+  ctx.fillStyle = '#C0C8D8';
   ctx.beginPath();
   ctx.ellipse(x - r * 0.92, y + r * 0.12, r * 0.31 + r * 0.05, r * 0.21 + r * 0.05, -0.35, 0, Math.PI * 2);
   ctx.fill();
   const arm1Grad = ctx.createLinearGradient(x - r * 1.2, y, x - r * 0.6, y + r * 0.3);
-  arm1Grad.addColorStop(0, '#FFF5FA');
-  arm1Grad.addColorStop(1, '#FFD8EE');
+  arm1Grad.addColorStop(0, '#FFFFFF');
+  arm1Grad.addColorStop(1, '#ECEEF8');
   ctx.fillStyle = arm1Grad;
   ctx.beginPath();
   ctx.ellipse(x - r * 0.92, y + r * 0.12, r * 0.31, r * 0.21, -0.35, 0, Math.PI * 2);
   ctx.fill();
   // 腕の縫い目（点線）
-  ctx.strokeStyle = 'rgba(220,110,160,0.42)';
+  ctx.strokeStyle = 'rgba(170,180,200,0.42)';
   ctx.lineWidth   = r * 0.06;
   ctx.setLineDash([r * 0.09, r * 0.09]);
   ctx.beginPath();
@@ -1551,18 +1538,18 @@ function drawYamiiPlush(ctx, x, y, r) {
   ctx.setLineDash([]);
 
   // ── 右腕
-  ctx.fillStyle = '#D878A8';
+  ctx.fillStyle = '#C0C8D8';
   ctx.beginPath();
   ctx.ellipse(x + r * 0.90, y - r * 0.10, r * 0.29 + r * 0.05, r * 0.20 + r * 0.05, 0.55, 0, Math.PI * 2);
   ctx.fill();
   const arm2Grad = ctx.createLinearGradient(x + r * 0.6, y - r * 0.3, x + r * 1.2, y);
-  arm2Grad.addColorStop(0, '#FFD8EE');
-  arm2Grad.addColorStop(1, '#FFF5FA');
+  arm2Grad.addColorStop(0, '#ECEEF8');
+  arm2Grad.addColorStop(1, '#FFFFFF');
   ctx.fillStyle = arm2Grad;
   ctx.beginPath();
   ctx.ellipse(x + r * 0.90, y - r * 0.10, r * 0.29, r * 0.20, 0.55, 0, Math.PI * 2);
   ctx.fill();
-  ctx.strokeStyle = 'rgba(220,110,160,0.42)';
+  ctx.strokeStyle = 'rgba(170,180,200,0.42)';
   ctx.lineWidth   = r * 0.06;
   ctx.setLineDash([r * 0.09, r * 0.09]);
   ctx.beginPath();
@@ -1572,21 +1559,21 @@ function drawYamiiPlush(ctx, x, y, r) {
 
   // ── 体アウトライン
   yamiiPath(ctx, x, y, r * 1.07);
-  ctx.fillStyle = '#D878A8';
+  ctx.fillStyle = '#C0C8D8';
   ctx.fill();
 
-  // ── 体本体（ぬいぐるみ生地・ピンクグラデーション）
+  // ── 体本体（ぬいぐるみ生地・白グラデーション）
   yamiiPath(ctx, x, y, r);
   const bodyGrad = ctx.createLinearGradient(x - r, y - r, x + r * 0.6, y + r * 1.1);
-  bodyGrad.addColorStop(0,   '#FFFAFC');
-  bodyGrad.addColorStop(0.25,'#FFE8F5');
-  bodyGrad.addColorStop(0.60,'#FFC8E4');
-  bodyGrad.addColorStop(1,   '#F4A8CC');
+  bodyGrad.addColorStop(0,   '#FFFFFF');
+  bodyGrad.addColorStop(0.25,'#F8F9FF');
+  bodyGrad.addColorStop(0.60,'#ECEEF8');
+  bodyGrad.addColorStop(1,   '#D8DCF0');
   ctx.fillStyle = bodyGrad;
   ctx.fill();
 
   // ── 縫い目ライン（ぬいぐるみらしさ）
-  ctx.strokeStyle = 'rgba(220,100,150,0.38)';
+  ctx.strokeStyle = 'rgba(165,175,200,0.38)';
   ctx.lineWidth   = r * 0.065;
   ctx.setLineDash([r * 0.10, r * 0.09]);
   // 縦の中央縫い目
@@ -1616,17 +1603,17 @@ function drawYamiiPlush(ctx, x, y, r) {
   ctx.fillRect(x - r * 2, y - r * 2, r * 4, r * 4);
   ctx.restore();
 
-  // ── 刺繍目（ぬいぐるみ目・ピンク縁）
+  // ── 刺繍目（ぬいぐるみ目・グレー縁）
   const eyeR = r * 0.19;
   const eyeY = y - r * 0.06;
   for (const sign of [-1, 1]) {
     const ex = x + sign * r * 0.28;
-    ctx.strokeStyle = '#6A2040';
+    ctx.strokeStyle = '#555870';
     ctx.lineWidth   = r * 0.07;
     ctx.beginPath();
     ctx.arc(ex, eyeY, eyeR, 0, Math.PI * 2);
     ctx.stroke();
-    ctx.fillStyle = '#3A1828';
+    ctx.fillStyle = '#2A2C38';
     ctx.beginPath();
     ctx.arc(ex, eyeY, eyeR * 0.80, 0, Math.PI * 2);
     ctx.fill();
@@ -1637,8 +1624,8 @@ function drawYamiiPlush(ctx, x, y, r) {
     ctx.fill();
   }
 
-  // ── 刺繍ほっぺ（ピンク）
-  ctx.fillStyle = 'rgba(255,130,170,0.50)';
+  // ── 刺繍ほっぺ（淡ピンク）
+  ctx.fillStyle = 'rgba(255,170,195,0.40)';
   ctx.beginPath();
   ctx.ellipse(x - r * 0.51, y + r * 0.20, r * 0.23, r * 0.13, 0, 0, Math.PI * 2);
   ctx.fill();
@@ -1646,8 +1633,8 @@ function drawYamiiPlush(ctx, x, y, r) {
   ctx.ellipse(x + r * 0.51, y + r * 0.20, r * 0.23, r * 0.13, 0, 0, Math.PI * 2);
   ctx.fill();
 
-  // ── 刺繍スマイル（ピンクステッチ）
-  ctx.strokeStyle = '#E0507A';
+  // ── 刺繍スマイル（グレーステッチ）
+  ctx.strokeStyle = '#909DB8';
   ctx.lineWidth   = r * 0.09;
   ctx.lineCap     = 'round';
   ctx.setLineDash([r * 0.10, r * 0.09]);
