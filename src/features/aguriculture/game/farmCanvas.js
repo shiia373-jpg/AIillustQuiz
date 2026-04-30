@@ -1385,8 +1385,7 @@ function drawYamii(ctx, x, y, r, glowAlpha = 0.8) {
   yamiiPath(ctx, cx, cy, r);
   const bodyGrad = ctx.createLinearGradient(cx - r, cy - r, cx + r * 0.6, cy + r * 1.1);
   bodyGrad.addColorStop(0,    '#FFFBFE');  // 上：ほぼ白
-  bodyGrad.addColorStop(0.20, '#FFEEف8');  // 淡ピンク
-  bodyGrad.addColorStop(0.22, '#FFEEF8');  // 淡ピンク（修正）
+  bodyGrad.addColorStop(0.20, '#FFEEF8');  // 淡ピンク
   bodyGrad.addColorStop(0.55, '#FFC8E4');  // ピンク
   bodyGrad.addColorStop(1,    '#F0A0C8');  // 濃いめピンク
   ctx.fillStyle = bodyGrad;
