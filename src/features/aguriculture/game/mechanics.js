@@ -67,6 +67,19 @@ function getFarmBonus(farm) {
     }
   }
 
+  // 机・棚の上の小物
+  const furnitureTop = house.furnitureTop ?? {};
+  for (const topList of Object.values(furnitureTop)) {
+    for (const itemId of (topList ?? [])) {
+      const item = HOUSE_ITEMS[itemId];
+      if (item?.bonus) {
+        coinBonus += item.bonus.coinBonus ?? 0;
+        expBonus  += item.bonus.expBonus  ?? 0;
+        qualityUp += item.bonus.qualityUp ?? 0;
+      }
+    }
+  }
+
   return { coinBonus, expBonus, qualityUp };
 }
 

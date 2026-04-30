@@ -104,7 +104,7 @@ const HOUSE_ITEMS = {
   furn_plant:         { name: '観葉植物',   category: 'furniture', price: 400,   emoji: '🌿' },
   furn_clock:         { name: '時計',       category: 'furniture', price: 500,   emoji: '🕐' },
   furn_table:         { name: 'テーブル',   category: 'furniture', price: 600,   emoji: '🪑' },
-  furn_bookshelf:     { name: '本棚',       category: 'furniture', price: 700,   emoji: '📚' },
+  furn_bookshelf:     { name: '本棚',       category: 'furniture', price: 700,   emoji: '📚', topSlots: 2 },
   furn_rug:           { name: '絨毯',       category: 'furniture', price: 800,   emoji: '🟥' },
   furn_sofa:          { name: 'ソファ',     category: 'furniture', price: 800,   emoji: '🛋️' },
   furn_bed:           { name: 'ベッド',     category: 'furniture', price: 1000,  emoji: '🛏️' },
@@ -136,9 +136,39 @@ const HOUSE_ITEMS = {
                         bonus: { qualityUp: 20, coinBonus: 0.30, expBonus: 0.30 } },
   furn_yamii_plush:   { name: 'ヤミーのぬいぐるみ', category: 'furniture', price: 180000, emoji: '🧸',
                         bonus: { qualityUp: 16, coinBonus: 0.22, expBonus: 0.22 } },
+
+  // ─── 家具（生活感・新アイテム）──────────────────────────────────────────────
+  furn_wood_chair:  { name: '木の椅子',     category: 'furniture', price: 200,  emoji: '🪑' },
+  furn_wood_desk:   { name: '木の机',       category: 'furniture', price: 650,  emoji: '📋', topSlots: 2,
+                      bonus: { expBonus: 0.02 } },
+  furn_big_shelf:   { name: '大きな棚',     category: 'furniture', price: 1600, emoji: '🗄️', topSlots: 3,
+                      bonus: { expBonus: 0.05, qualityUp: 1 } },
+  furn_floor_lamp:  { name: 'フロアランプ', category: 'furniture', price: 380,  emoji: '🪔' },
+  furn_dresser:     { name: 'タンス',       category: 'furniture', price: 750,  emoji: '🗃️' },
+  furn_cactus:      { name: 'サボテン',     category: 'furniture', price: 380,  emoji: '🌵',
+                      bonus: { qualityUp: 1 } },
+  furn_teddy_bear:  { name: 'くまのぬいぐるみ', category: 'furniture', price: 450, emoji: '🐻',
+                      bonus: { qualityUp: 1 } },
+  furn_kitchen:     { name: 'キッチン台',   category: 'furniture', price: 1200, emoji: '🍳',
+                      bonus: { coinBonus: 0.04 }, topSlots: 1 },
+
+  // ─── 小物（机・棚・キッチンの上に置ける）────────────────────────────────────
+  furn_candle:      { name: 'キャンドル',   category: 'small', price: 160,  emoji: '🕯️' },
+  furn_teapot:      { name: 'ティーポット', category: 'small', price: 240,  emoji: '🫖' },
+  furn_mini_vase:   { name: '小花瓶',       category: 'small', price: 350,  emoji: '🌸',
+                      bonus: { qualityUp: 1 } },
+  furn_photo_frame: { name: '写真立て',     category: 'small', price: 260,  emoji: '🖼️' },
+  furn_piggy_bank:  { name: '貯金箱',       category: 'small', price: 580,  emoji: '🐷',
+                      bonus: { coinBonus: 0.02 } },
+  furn_mini_plant:  { name: 'ミニ観葉植物', category: 'small', price: 340,  emoji: '🌿',
+                      bonus: { expBonus: 0.01 } },
+  furn_snow_globe:  { name: 'スノードーム', category: 'small', price: 700,  emoji: '🌨️',
+                      bonus: { qualityUp: 1 } },
+  furn_alarm_clock: { name: '目覚まし時計', category: 'small', price: 280,  emoji: '⏰' },
 };
 
-const MAX_FURNITURE = 8;  // 最大設置数
+const MAX_FURNITURE  = 10;  // 最大設置数（通常家具）
+const MAX_TOP_ITEMS  = 3;   // 机・棚1つあたりの最大小物数
 
 const DEFAULT_HOUSE = {
   wall:      'wall_wood',
@@ -158,6 +188,7 @@ const CATEGORY_NAMES = {
   floor:     '🪵 床',
   wallpaper: '🖼 壁紙',
   furniture: '🪑 家具',
+  small:     '📦 小物',
 };
 
 // ボーナス説明テキスト生成
@@ -170,4 +201,4 @@ function formatBonus(bonus) {
   return parts.length ? parts.join(' ') : null;
 }
 
-module.exports = { HOUSE_ITEMS, DEFAULT_HOUSE, CATEGORY_NAMES, MAX_FURNITURE, formatBonus };
+module.exports = { HOUSE_ITEMS, DEFAULT_HOUSE, CATEGORY_NAMES, MAX_FURNITURE, MAX_TOP_ITEMS, formatBonus };

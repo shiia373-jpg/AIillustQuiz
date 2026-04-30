@@ -808,17 +808,7 @@ function drawInterior(ctx, house, startY) {
       ctx.ellipse(ix, iy + iconSize / 2 - 2, iconSize / 2 - 2, 4, 0, 0, Math.PI * 2);
       ctx.fill();
 
-      if (id === 'furn_yamii_plush') {
-        drawYamiiPlush(ctx, ix, iy - iconSize * 0.08, iconSize * 0.44);
-      } else if (id === 'furn_yamii') {
-        drawYamii(ctx, ix, iy - iconSize * 0.08, iconSize * 0.44, 0.65);
-      } else {
-        ctx.font         = `${iconSize - 4}px sans-serif`;
-        ctx.textAlign    = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillStyle    = '#FFFFFF';
-        ctx.fillText(fi.emoji, ix, iy);
-      }
+      drawFurnItem(ctx, id, ix, iy + iconSize*0.30, iconSize * 0.80);
       ctx.textBaseline = 'alphabetic';
       ctx.fillStyle    = 'rgba(0,0,0,0.55)';
       ctx.font         = '8px sans-serif';
@@ -832,6 +822,447 @@ function drawInterior(ctx, house, startY) {
   ctx.textAlign    = 'right';
   ctx.textBaseline = 'alphabetic';
   ctx.fillText(`${furniture.length}/${MAX_FURNITURE}`, px + panelW - 6, py + panelH - 5);
+}
+
+// ── カスタム家具描画 ─────────────────────────────────────────────────────────
+
+// 水晶玉（🔮 絵文字がnapi-rs/canvasでバグるため完全カスタム描画）
+function drawCrystalOrb(ctx, cx, cy, r) {
+  // 台座
+  const baseGrad = ctx.createLinearGradient(cx - r*0.6, cy + r*0.6, cx + r*0.6, cy + r*1.0);
+  baseGrad.addColorStop(0, '#7038B8');
+  baseGrad.addColorStop(1, '#3A1060');
+  ctx.fillStyle = baseGrad;
+  ctx.beginPath();
+  ctx.ellipse(cx, cy + r * 0.82, r * 0.58, r * 0.20, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = '#9050D0';
+  ctx.beginPath();
+  ctx.ellipse(cx, cy + r * 0.72, r * 0.40, r * 0.13, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // 外側グロー
+  const glow = ctx.createRadialGradient(cx, cy, r * 0.5, cx, cy, r * 1.7);
+  glow.addColorStop(0,   'rgba(160,100,255,0.45)');
+  glow.addColorStop(0.45,'rgba(120,60,220,0.18)');
+  glow.addColorStop(1,   'rgba(0,0,0,0)');
+  ctx.fillStyle = glow;
+  ctx.beginPath(); ctx.arc(cx, cy, r * 1.7, 0, Math.PI * 2); ctx.fill();
+
+  // 球体本体
+  const orbGrad = ctx.createRadialGradient(cx - r*0.28, cy - r*0.30, 0, cx, cy, r);
+  orbGrad.addColorStop(0,   '#D8C8FF');
+  orbGrad.addColorStop(0.22,'#9060E8');
+  orbGrad.addColorStop(0.60,'#4820B8');
+  orbGrad.addColorStop(1,   '#180870');
+  ctx.save();
+  ctx.shadowColor = 'rgba(160,80,255,0.85)';
+  ctx.shadowBlur  = r * 0.9;
+  ctx.fillStyle = orbGrad;
+  ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.fill();
+  ctx.shadowBlur = 0;
+  ctx.restore();
+
+  // 内部の渦
+  ctx.strokeStyle = 'rgba(210,180,255,0.48)';
+  ctx.lineWidth = r * 0.10;
+  ctx.lineCap = 'round';
+  ctx.setLineDash([]);
+  ctx.beginPath(); ctx.arc(cx - r*0.10, cy + r*0.08, r*0.38, -0.5, Math.PI*1.2); ctx.stroke();
+  ctx.beginPath(); ctx.arc(cx + r*0.14, cy - r*0.14, r*0.22, Math.PI*0.4, Math.PI*1.9); ctx.stroke();
+  ctx.lineCap = 'butt';
+
+  // ハイライト
+  const hl = ctx.createRadialGradient(cx - r*0.28, cy - r*0.34, 0, cx - r*0.18, cy - r*0.22, r*0.54);
+  hl.addColorStop(0, 'rgba(255,255,255,0.88)');
+  hl.addColorStop(0.5,'rgba(255,255,255,0.28)');
+  hl.addColorStop(1,  'rgba(255,255,255,0)');
+  ctx.fillStyle = hl;
+  ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.fill();
+
+  // 周囲の星きらめき
+  ctx.fillStyle = '#FFFFFF';
+  [[cx - r*1.10, cy - r*0.60], [cx + r*0.90, cy - r*0.80], [cx - r*0.80, cy + r*0.15]].forEach(([sx, sy]) => {
+    const sr = r * 0.055;
+    ctx.beginPath();
+    ctx.moveTo(sx, sy - sr*2.4); ctx.lineTo(sx + sr*0.5, sy - sr*0.5);
+    ctx.lineTo(sx + sr*2.4, sy); ctx.lineTo(sx + sr*0.5, sy + sr*0.5);
+    ctx.lineTo(sx, sy + sr*2.4); ctx.lineTo(sx - sr*0.5, sy + sr*0.5);
+    ctx.lineTo(sx - sr*2.4, sy); ctx.lineTo(sx - sr*0.5, sy - sr*0.5);
+    ctx.closePath(); ctx.fill();
+  });
+}
+
+// 木の机
+function drawWoodDesk(ctx, x, y, w, h) {
+  const legW = Math.max(3, w * 0.065);
+  const topH = Math.max(5, h * 0.22);
+  const legH = h - topH;
+
+  // 引き出し部分（左側）
+  const drawerW = w * 0.28;
+  ctx.fillStyle = '#9A5C1A';
+  roundRect(ctx, x + legW, y + topH + 1, drawerW, legH * 0.55, 2);
+  ctx.fill();
+  ctx.strokeStyle = '#6A3A08'; ctx.lineWidth = 0.8;
+  ctx.strokeRect(x + legW + 2, y + topH + 3, drawerW - 4, legH * 0.55 - 6);
+  ctx.fillStyle = '#C09040';
+  ctx.beginPath(); ctx.arc(x + legW + drawerW * 0.5, y + topH + legH * 0.28, 2, 0, Math.PI*2); ctx.fill();
+
+  // 脚
+  ctx.fillStyle = '#7A4A14';
+  ctx.fillRect(x + legW, y + topH, legW, legH);
+  ctx.fillRect(x + w - legW*2, y + topH, legW, legH);
+
+  // 天板
+  const topGrad = ctx.createLinearGradient(x, y, x, y + topH);
+  topGrad.addColorStop(0, '#D08840');
+  topGrad.addColorStop(0.4,'#B06020');
+  topGrad.addColorStop(1, '#8A4010');
+  ctx.fillStyle = topGrad;
+  roundRect(ctx, x - legW*0.3, y, w + legW*0.6, topH, 2);
+  ctx.fill();
+  // 木目
+  ctx.strokeStyle = 'rgba(0,0,0,0.10)'; ctx.lineWidth = 0.7;
+  for (let i = 1; i <= 3; i++) {
+    ctx.beginPath();
+    ctx.moveTo(x + w*(i/4) - legW*0.3, y + 1);
+    ctx.lineTo(x + w*(i/4), y + topH - 1);
+    ctx.stroke();
+  }
+  // 天板ハイライト
+  const hlG = ctx.createLinearGradient(x, y, x, y + topH * 0.45);
+  hlG.addColorStop(0, 'rgba(255,220,120,0.32)');
+  hlG.addColorStop(1, 'rgba(255,220,120,0)');
+  ctx.fillStyle = hlG;
+  roundRect(ctx, x - legW*0.3, y, w + legW*0.6, topH * 0.5, 2);
+  ctx.fill();
+}
+
+// 木の椅子
+function drawWoodChair(ctx, x, y, w, h) {
+  const seatH = Math.max(4, h * 0.18);
+  const seatY = y + h * 0.44;
+  const backH = seatY - y;
+  const legH  = h - backH - seatH;
+  const legW  = Math.max(2, w * 0.10);
+
+  // 背もたれ
+  const backGrad = ctx.createLinearGradient(x, y, x + w, y + backH);
+  backGrad.addColorStop(0, '#C07030');
+  backGrad.addColorStop(1, '#8A4010');
+  ctx.fillStyle = backGrad;
+  roundRect(ctx, x + w*0.10, y, w*0.80, backH, 3);
+  ctx.fill();
+  // 横桟
+  ctx.strokeStyle = 'rgba(0,0,0,0.16)'; ctx.lineWidth = 0.8;
+  ctx.beginPath();
+  ctx.moveTo(x + w*0.10 + 3, y + backH*0.50);
+  ctx.lineTo(x + w*0.90 - 3, y + backH*0.50);
+  ctx.stroke();
+  // ハイライト
+  ctx.fillStyle = 'rgba(255,200,100,0.18)';
+  roundRect(ctx, x + w*0.12, y + 2, w*0.76, backH*0.38, 2);
+  ctx.fill();
+
+  // 座面
+  const seatGrad = ctx.createLinearGradient(x, seatY, x, seatY + seatH);
+  seatGrad.addColorStop(0, '#D08840');
+  seatGrad.addColorStop(1, '#9A5010');
+  ctx.fillStyle = seatGrad;
+  roundRect(ctx, x, seatY, w, seatH, 2);
+  ctx.fill();
+  ctx.fillStyle = 'rgba(255,200,100,0.18)';
+  roundRect(ctx, x + 2, seatY + 1, w - 4, seatH*0.4, 1);
+  ctx.fill();
+
+  // 脚
+  ctx.fillStyle = '#7A4214';
+  ctx.fillRect(x + legW, seatY + seatH, legW, legH);
+  ctx.fillRect(x + w - legW*2, seatY + seatH, legW, legH);
+  ctx.strokeStyle = '#6A3610'; ctx.lineWidth = legW * 0.7;
+  ctx.beginPath();
+  ctx.moveTo(x + legW*1.5, seatY + seatH + legH*0.55);
+  ctx.lineTo(x + w - legW*1.5, seatY + seatH + legH*0.55);
+  ctx.stroke();
+}
+
+// 本棚（カラフルな本入り）
+function drawBookshelf(ctx, x, y, w, h) {
+  // 外枠
+  const frameGrad = ctx.createLinearGradient(x, y, x + w, y + h);
+  frameGrad.addColorStop(0, '#7A4218');
+  frameGrad.addColorStop(1, '#5A2C08');
+  ctx.fillStyle = frameGrad;
+  roundRect(ctx, x, y, w, h, 3);
+  ctx.fill();
+  // 内側
+  ctx.fillStyle = '#3A1C06';
+  ctx.fillRect(x + 4, y + 4, w - 8, h - 8);
+  // 棚板2枚
+  const sh1 = y + h*0.36, sh2 = y + h*0.65;
+  ctx.fillStyle = '#8A4C1A';
+  ctx.fillRect(x + 3, sh1, w - 6, 4);
+  ctx.fillRect(x + 3, sh2, w - 6, 4);
+  // 本を描く
+  const bookColors = ['#CC3333','#3355CC','#228844','#BB8822','#9933CC','#DD5511','#2299CC','#CC3377','#33AA88'];
+  const fillSection = (topY, botY, offset) => {
+    const sH = botY - topY - 2;
+    const nB = Math.max(2, Math.floor((w - 10) / Math.max(4, w*0.12)));
+    const bW = (w - 10) / nB;
+    for (let bi = 0; bi < nB; bi++) {
+      const bX = x + 5 + bi*bW;
+      const bH = sH * (0.75 + (bi % 3)*0.08);
+      ctx.fillStyle = bookColors[(bi + offset) % bookColors.length];
+      ctx.fillRect(bX, topY + (sH - bH), bW - 1, bH);
+      ctx.fillStyle = 'rgba(255,255,255,0.16)';
+      ctx.fillRect(bX + 1, topY + (sH - bH) + 1, 1.5, bH - 2);
+    }
+  };
+  fillSection(y + 5, sh1 - 1, 0);
+  fillSection(sh1 + 5, sh2 - 1, 3);
+  fillSection(sh2 + 5, y + h - 5, 6);
+  // 上辺ハイライト
+  const tHL = ctx.createLinearGradient(x, y, x, y + 6);
+  tHL.addColorStop(0, 'rgba(200,140,60,0.42)');
+  tHL.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.fillStyle = tHL;
+  roundRect(ctx, x, y, w, 6, 3);
+  ctx.fill();
+}
+
+// フロアランプ
+function drawFloorLamp(ctx, cx, baseY, r) {
+  const poleH = r * 3.2;
+  const poleW = Math.max(2, r * 0.18);
+  const shadeR = r * 0.95;
+  const shadeH = r * 0.72;
+
+  // 台座
+  ctx.fillStyle = '#886030';
+  ctx.beginPath(); ctx.ellipse(cx, baseY - 2, r*0.55, r*0.13, 0, 0, Math.PI*2); ctx.fill();
+  ctx.fillStyle = '#A07840';
+  ctx.beginPath(); ctx.ellipse(cx, baseY - 4, r*0.40, r*0.09, 0, 0, Math.PI*2); ctx.fill();
+
+  // ポール
+  const poleGrad = ctx.createLinearGradient(cx - poleW, 0, cx + poleW, 0);
+  poleGrad.addColorStop(0, '#886030');
+  poleGrad.addColorStop(0.4,'#C09050');
+  poleGrad.addColorStop(1, '#886030');
+  ctx.fillStyle = poleGrad;
+  ctx.fillRect(cx - poleW/2, baseY - poleH, poleW, poleH);
+
+  // シェード外側（影）
+  const shadeTopY = baseY - poleH;
+  ctx.fillStyle = '#2A1A0A';
+  ctx.beginPath();
+  ctx.moveTo(cx - shadeR, shadeTopY + shadeH);
+  ctx.lineTo(cx + shadeR, shadeTopY + shadeH);
+  ctx.lineTo(cx + shadeR*0.52, shadeTopY);
+  ctx.lineTo(cx - shadeR*0.52, shadeTopY);
+  ctx.closePath(); ctx.fill();
+
+  // 光（内側グロー）
+  const lampGlow = ctx.createRadialGradient(cx, shadeTopY + shadeH*0.7, 0, cx, shadeTopY + shadeH*0.9, shadeR*1.3);
+  lampGlow.addColorStop(0, 'rgba(255,240,180,0.92)');
+  lampGlow.addColorStop(0.4,'rgba(255,220,100,0.38)');
+  lampGlow.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.fillStyle = lampGlow;
+  ctx.fillRect(cx - shadeR*1.3, shadeTopY - r*0.5, shadeR*2.6, shadeR*2.2);
+
+  // シェード本体
+  const shadeGrad = ctx.createLinearGradient(cx, shadeTopY, cx, shadeTopY + shadeH);
+  shadeGrad.addColorStop(0, '#C88840');
+  shadeGrad.addColorStop(0.5,'#E0A850');
+  shadeGrad.addColorStop(1, '#C07830');
+  ctx.fillStyle = shadeGrad;
+  ctx.beginPath();
+  ctx.moveTo(cx - shadeR, shadeTopY + shadeH);
+  ctx.lineTo(cx + shadeR, shadeTopY + shadeH);
+  ctx.lineTo(cx + shadeR*0.52, shadeTopY);
+  ctx.lineTo(cx - shadeR*0.52, shadeTopY);
+  ctx.closePath(); ctx.fill();
+  ctx.strokeStyle = '#8A5020'; ctx.lineWidth = 0.8;
+  ctx.stroke();
+}
+
+// タンス
+function drawDresser(ctx, x, y, w, h) {
+  // 本体
+  const bodyGrad = ctx.createLinearGradient(x, y, x + w, y + h);
+  bodyGrad.addColorStop(0, '#9A5C1E');
+  bodyGrad.addColorStop(1, '#6A3A0A');
+  ctx.fillStyle = bodyGrad;
+  roundRect(ctx, x, y, w, h, 3);
+  ctx.fill();
+  // 引き出し3段
+  const drawerH = (h - 10) / 3 - 2;
+  for (let di = 0; di < 3; di++) {
+    const dY = y + 5 + di*(drawerH + 2);
+    const dGrad = ctx.createLinearGradient(x, dY, x, dY + drawerH);
+    dGrad.addColorStop(0, '#B87030');
+    dGrad.addColorStop(1, '#8A4A14');
+    ctx.fillStyle = dGrad;
+    roundRect(ctx, x + 4, dY, w - 8, drawerH, 2);
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(0,0,0,0.18)'; ctx.lineWidth = 0.7;
+    roundRect(ctx, x + 4, dY, w - 8, drawerH, 2);
+    ctx.stroke();
+    // ノブ
+    ctx.fillStyle = '#D4A040';
+    ctx.beginPath(); ctx.arc(x + w/2, dY + drawerH/2, 2.5, 0, Math.PI*2); ctx.fill();
+    ctx.strokeStyle = '#A07020'; ctx.lineWidth = 0.5; ctx.stroke();
+  }
+  // 天板ハイライト
+  const topHL = ctx.createLinearGradient(x, y, x, y + 6);
+  topHL.addColorStop(0, 'rgba(200,150,60,0.45)');
+  topHL.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.fillStyle = topHL;
+  roundRect(ctx, x, y, w, 6, 3);
+  ctx.fill();
+}
+
+// キッチン台
+function drawKitchen(ctx, x, y, w, h) {
+  // 台本体
+  const bodyGrad = ctx.createLinearGradient(x, y, x, y + h);
+  bodyGrad.addColorStop(0, '#A0A0A8');
+  bodyGrad.addColorStop(1, '#686870');
+  ctx.fillStyle = bodyGrad;
+  roundRect(ctx, x, y, w, h, 3);
+  ctx.fill();
+  // 扉2枚
+  const doorW = (w - 10) / 2 - 1;
+  for (let di = 0; di < 2; di++) {
+    const dX = x + 5 + di*(doorW + 2);
+    ctx.fillStyle = '#B8B8C2';
+    roundRect(ctx, dX, y + h*0.18, doorW, h*0.72, 2);
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(0,0,0,0.15)'; ctx.lineWidth = 0.7;
+    roundRect(ctx, dX, y + h*0.18, doorW, h*0.72, 2);
+    ctx.stroke();
+    ctx.fillStyle = '#888898';
+    ctx.beginPath(); ctx.arc(dX + doorW*(di === 0 ? 0.72 : 0.28), y + h*0.54, 2.5, 0, Math.PI*2); ctx.fill();
+  }
+  // カウンター天板（白）
+  const ctGrad = ctx.createLinearGradient(x, y, x, y + h*0.17);
+  ctGrad.addColorStop(0, '#F0F0F8');
+  ctGrad.addColorStop(1, '#C8C8D4');
+  ctx.fillStyle = ctGrad;
+  roundRect(ctx, x - 2, y, w + 4, h*0.17, 2);
+  ctx.fill();
+  // コンロ（黒い丸2つ）
+  ctx.fillStyle = '#303038';
+  ctx.beginPath(); ctx.arc(x + w*0.32, y + h*0.085, w*0.095, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(x + w*0.68, y + h*0.085, w*0.095, 0, Math.PI*2); ctx.fill();
+  ctx.strokeStyle = '#555560'; ctx.lineWidth = 0.8;
+  ctx.beginPath(); ctx.arc(x + w*0.32, y + h*0.085, w*0.095, 0, Math.PI*2); ctx.stroke();
+  ctx.beginPath(); ctx.arc(x + w*0.68, y + h*0.085, w*0.095, 0, Math.PI*2); ctx.stroke();
+}
+
+// ── 小物アイコン（机・棚の上に描画）─────────────────────────────────────────
+function drawTopItem(ctx, id, cx, cy, r) {
+  const item = HOUSE_ITEMS[id];
+  if (!item) return;
+  if (id === 'furn_candle') {
+    // 蝋燭本体
+    ctx.fillStyle = '#F8F0D8';
+    ctx.fillRect(cx - r*0.28, cy - r*0.8, r*0.56, r*0.85);
+    ctx.fillStyle = '#C8A840';
+    ctx.fillRect(cx - r*0.28, cy - r*0.8, r*0.56, r*0.10);
+    // 炎
+    const flameGrad = ctx.createRadialGradient(cx, cy - r*0.92, 0, cx, cy - r*0.92, r*0.28);
+    flameGrad.addColorStop(0, '#FFFF88');
+    flameGrad.addColorStop(0.4,'#FF9020');
+    flameGrad.addColorStop(1, 'rgba(255,60,0,0)');
+    ctx.fillStyle = flameGrad;
+    ctx.beginPath();
+    ctx.ellipse(cx, cy - r*0.96, r*0.18, r*0.28, 0, 0, Math.PI*2);
+    ctx.fill();
+    return;
+  }
+  if (id === 'furn_snow_globe') {
+    // ドーム
+    const domeGrad = ctx.createRadialGradient(cx - r*0.22, cy - r*0.22, 0, cx, cy, r*0.72);
+    domeGrad.addColorStop(0, 'rgba(200,230,255,0.88)');
+    domeGrad.addColorStop(0.6,'rgba(140,180,240,0.60)');
+    domeGrad.addColorStop(1, 'rgba(80,130,200,0.40)');
+    ctx.fillStyle = domeGrad;
+    ctx.beginPath(); ctx.arc(cx, cy - r*0.18, r*0.72, 0, Math.PI*2); ctx.fill();
+    ctx.strokeStyle = 'rgba(160,200,255,0.55)'; ctx.lineWidth = 0.8; ctx.stroke();
+    // 台座
+    ctx.fillStyle = '#886030';
+    ctx.beginPath(); ctx.ellipse(cx, cy + r*0.56, r*0.68, r*0.18, 0, 0, Math.PI*2); ctx.fill();
+    // 雪と小木
+    ctx.fillStyle = 'rgba(255,255,255,0.90)';
+    ctx.beginPath(); ctx.arc(cx - r*0.24, cy - r*0.08, r*0.09, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(cx + r*0.18, cy - r*0.12, r*0.07, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#226622';
+    ctx.beginPath();
+    ctx.moveTo(cx + r*0.32, cy - r*0.05);
+    ctx.lineTo(cx + r*0.32 - r*0.16, cy + r*0.28);
+    ctx.lineTo(cx + r*0.32 + r*0.16, cy + r*0.28);
+    ctx.closePath(); ctx.fill();
+    return;
+  }
+  // デフォルト: 絵文字
+  ctx.font = `${Math.ceil(r * 1.7)}px sans-serif`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillStyle = '#FFFFFF';
+  ctx.fillText(item.emoji, cx, cy);
+}
+
+// ── 家具1アイテムを統一的に描画 ──────────────────────────────────────────────
+// cx, cy = 底面中心, size = 基準サイズ（fs）
+function drawFurnItem(ctx, id, cx, cy, size) {
+  if (id === 'furn_yamii_plush') {
+    drawYamiiPlush(ctx, cx, cy - size*0.52, size*0.52);
+    return;
+  }
+  if (id === 'furn_yamii') {
+    drawYamii(ctx, cx, cy - size*0.52, size*0.52, 0.80);
+    return;
+  }
+  if (id === 'furn_crystal_orb') {
+    drawCrystalOrb(ctx, cx, cy - size*0.44, size*0.42);
+    return;
+  }
+  if (id === 'furn_wood_desk') {
+    drawWoodDesk(ctx, cx - size*0.55, cy - size*0.55, size*1.1, size*0.55);
+    return;
+  }
+  if (id === 'furn_wood_chair') {
+    drawWoodChair(ctx, cx - size*0.36, cy - size*0.72, size*0.72, size*0.72);
+    return;
+  }
+  if (id === 'furn_bookshelf' || id === 'furn_big_shelf') {
+    drawBookshelf(ctx, cx - size*0.50, cy - size*0.88, size, size*0.88);
+    return;
+  }
+  if (id === 'furn_floor_lamp') {
+    drawFloorLamp(ctx, cx, cy, size*0.52);
+    return;
+  }
+  if (id === 'furn_dresser') {
+    drawDresser(ctx, cx - size*0.46, cy - size*0.72, size*0.92, size*0.72);
+    return;
+  }
+  if (id === 'furn_kitchen') {
+    drawKitchen(ctx, cx - size*0.55, cy - size*0.60, size*1.10, size*0.60);
+    return;
+  }
+  // デフォルト: 絵文字
+  const item = HOUSE_ITEMS[id];
+  if (!item) return;
+  ctx.shadowColor = 'rgba(255,210,100,0.28)';
+  ctx.shadowBlur  = size * 0.28;
+  ctx.font         = `${size}px sans-serif`;
+  ctx.textAlign    = 'center';
+  ctx.textBaseline = 'bottom';
+  ctx.fillStyle    = '#FFFFFF';
+  ctx.fillText(item.emoji, cx, cy);
+  ctx.shadowBlur = 0;
 }
 
 // ── ヤミー描画ヘルパー ────────────────────────────────────────────────────────
@@ -1919,9 +2350,13 @@ function generateInteriorImage(farm, ownerName = null) {
   const positions = [
     { fx: 0.12, fy: 0.08 }, { fx: 0.88, fy: 0.08 },
     { fx: 0.40, fy: 0.08 }, { fx: 0.60, fy: 0.08 },
-    { fx: 0.18, fy: 0.44 }, { fx: 0.82, fy: 0.44 },
-    { fx: 0.35, fy: 0.78 }, { fx: 0.65, fy: 0.78 },
+    { fx: 0.22, fy: 0.34 }, { fx: 0.78, fy: 0.34 },
+    { fx: 0.50, fy: 0.22 },
+    { fx: 0.18, fy: 0.55 }, { fx: 0.82, fy: 0.55 },
+    { fx: 0.35, fy: 0.82 }, { fx: 0.65, fy: 0.82 },
   ];
+
+  const furnitureTop = house.furnitureTop ?? {};
 
   // 奥→手前の順で描画（ペインターズアルゴリズム）
   const sortedFurn = furniture
@@ -1954,20 +2389,33 @@ function generateInteriorImage(farm, ownerName = null) {
     ctx.ellipse(x, y + 3, fs * 0.44, fs * 0.12, 0, 0, Math.PI * 2);
     ctx.fill();
 
-    // アイコン（ヤミー系は専用描画）
-    if (id === 'furn_yamii_plush') {
-      drawYamiiPlush(ctx, x, y - fs * 0.52, fs * 0.52);
-    } else if (id === 'furn_yamii') {
-      drawYamii(ctx, x, y - fs * 0.52, fs * 0.52, 0.80);
-    } else {
-      ctx.shadowColor = 'rgba(255,210,100,0.28)';
-      ctx.shadowBlur  = fs * 0.28;
-      ctx.font         = `${fs}px sans-serif`;
-      ctx.textAlign    = 'center';
-      ctx.textBaseline = 'bottom';
-      ctx.fillStyle    = '#FFFFFF';
-      ctx.fillText(item.emoji, x, y);
-      ctx.shadowBlur = 0;
+    // 家具本体を描画
+    drawFurnItem(ctx, id, x, y, fs);
+
+    // 机・棚・キッチンの上の小物を描画
+    const topItems = furnitureTop[id] ?? [];
+    if (topItems.length > 0 && item.topSlots) {
+      // 天板Y（家具の天面）を推定
+      let topSurfaceY;
+      if (id === 'furn_wood_desk' || id === 'furn_kitchen') {
+        topSurfaceY = y - fs * 0.54;
+      } else if (id === 'furn_bookshelf' || id === 'furn_big_shelf') {
+        topSurfaceY = y - fs * 0.88;
+      } else {
+        topSurfaceY = y - fs * 0.70;
+      }
+      const topR   = fs * 0.22;
+      const totalW = topItems.length * topR * 2.8;
+      topItems.forEach((topId, ti) => {
+        const tx = x - totalW/2 + topR*1.4 + ti * topR*2.8;
+        const ty = topSurfaceY - topR * 0.6;
+        // 小物の影
+        ctx.fillStyle = 'rgba(0,0,0,0.20)';
+        ctx.beginPath();
+        ctx.ellipse(tx, topSurfaceY, topR*0.6, topR*0.12, 0, 0, Math.PI*2);
+        ctx.fill();
+        drawTopItem(ctx, topId, tx, ty, topR);
+      });
     }
 
     // 家具名

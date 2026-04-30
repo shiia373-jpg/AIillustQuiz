@@ -33,7 +33,8 @@ async function handleButton(interaction) {
   // 家ショップ・家具関連ボタン
   if (customId === 'farm_house_shop' ||
       customId.startsWith('farm_house_') ||
-      customId.startsWith('farm_furn_')) {
+      customId.startsWith('farm_furn_') ||
+      customId.startsWith('farm_small_')) {
     return handleHouseShopButton(interaction);
   }
 
