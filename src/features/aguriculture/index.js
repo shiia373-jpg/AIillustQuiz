@@ -58,7 +58,7 @@ async function handleButton(interaction) {
     return interaction.reply({
       embeds: [buildShopEmbed(farm)],
       components: buildShopButtons(farm),
-      ephemeral: true,
+      flags: 64,
     });
   }
 
@@ -89,7 +89,7 @@ async function handleButton(interaction) {
       if (!vc) {
         return interaction.followUp({
           content: '❌ 訪問するにはボイスチャンネルに参加してください。',
-          ephemeral: true,
+          flags: 64,
         });
       }
       const members = [...vc.members.values()]
@@ -99,7 +99,7 @@ async function handleButton(interaction) {
       if (members.length === 0) {
         return interaction.followUp({
           content: `❌ VC「**${vc.name}**」に他のメンバーがいません。`,
-          ephemeral: true,
+          flags: 64,
         });
       }
       return interaction.editReply(buildVCVisitPayload(members, vc.name));
@@ -142,7 +142,7 @@ async function handleButton(interaction) {
           'no seed':           '❌ 種がなくなっています。ショップで購入してください。',
           'slot not unlocked': '❌ そのスロットはまだ解放されていません。',
         };
-        await interaction.followUp({ content: msgs[e.message] ?? '❌ エラーが発生しました。', ephemeral: true });
+        await interaction.followUp({ content: msgs[e.message] ?? '❌ エラーが発生しました。', flags: 64 });
         return interaction.editReply(await buildFarmPayload(user.id));
       }
     }
@@ -156,7 +156,7 @@ async function handleButton(interaction) {
         const { results, totalCoins, totalExp, farm, levelUps, farmBonus } = result;
         await interaction.followUp({
           embeds: [buildHarvestEmbed(results, totalCoins, totalExp, farm.coins, farm.level, levelUps, farmBonus)],
-          ephemeral: true,
+          flags: 64,
         });
       }
 
@@ -165,7 +165,7 @@ async function handleButton(interaction) {
 
   } catch (err) {
     console.error('[Farm Button Error]:', err);
-    await interaction.followUp({ content: '⚠️ エラーが発生しました。', ephemeral: true }).catch(() => {});
+    await interaction.followUp({ content: '⚠️ エラーが発生しました。', flags: 64 }).catch(() => {});
   }
 }
 

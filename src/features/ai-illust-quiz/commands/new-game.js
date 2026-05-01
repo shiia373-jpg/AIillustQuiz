@@ -10,7 +10,7 @@ module.exports = {
     clearGame(interaction.guildId);
     await interaction.reply({
       content: '✅ ゲームをリセットしました！\n/set-quiz でラウンド1のお題を設定してください。',
-      ephemeral: true,
+      flags: 64,
     });
   },
 };

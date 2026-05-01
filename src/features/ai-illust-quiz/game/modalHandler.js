@@ -75,7 +75,7 @@ async function generateImageBuffer(answer) {
 }
 
 async function generatePreview(interaction, game, answer) {
-  await interaction.deferReply({ ephemeral: true });
+  await interaction.deferReply({ flags: 64 });
 
   let imageBuffer;
   try {
@@ -160,15 +160,15 @@ async function handleModal(interaction) {
 
   if (interaction.customId === 'quiz_input_word_modal') {
     if (!game) {
-      return interaction.reply({ content: 'まず /start-quiz でクイズを設定してください。', ephemeral: true });
+      return interaction.reply({ content: 'まず /start-quiz でクイズを設定してください。', flags: 64 });
     }
     if (interaction.user.id !== game.quizmasterId) {
-      return interaction.reply({ content: '出題者のみ操作できます。', ephemeral: true });
+      return interaction.reply({ content: '出題者のみ操作できます。', flags: 64 });
     }
 
     const answer = interaction.fields.getTextInputValue('word_input').trim();
     if (/[\u4E00-\u9FFF\u3400-\u4DBF\uF900-\uFAFF]/.test(answer)) {
-      return interaction.reply({ content: '⚠️ お題にはひらがな・カタカナのみ使用できます。漢字は使えません。', ephemeral: true });
+      return interaction.reply({ content: '⚠️ お題にはひらがな・カタカナのみ使用できます。漢字は使えません。', flags: 64 });
     }
 
     await generatePreview(interaction, game, answer);
@@ -177,10 +177,10 @@ async function handleModal(interaction) {
 
   if (interaction.customId === 'quiz_hint_modal') {
     if (!game || !game.active) {
-      return interaction.reply({ content: '現在進行中のクイズがありません。', ephemeral: true });
+      return interaction.reply({ content: '現在進行中のクイズがありません。', flags: 64 });
     }
     if (interaction.user.id !== game.quizmasterId) {
-      return interaction.reply({ content: 'ヒントを追加できるのは出題者だけです。', ephemeral: true });
+      return interaction.reply({ content: 'ヒントを追加できるのは出題者だけです。', flags: 64 });
     }
     const hint = interaction.fields.getTextInputValue('hint_input').trim();
     const updatedHints = [...game.hints, hint];
@@ -192,10 +192,10 @@ async function handleModal(interaction) {
 
   if (interaction.customId === 'quiz_answer_modal') {
     if (!game || !game.active) {
-      return interaction.reply({ content: '現在進行中のクイズがありません。', ephemeral: true });
+      return interaction.reply({ content: '現在進行中のクイズがありません。', flags: 64 });
     }
     if (interaction.user.id === game.quizmasterId) {
-      return interaction.reply({ content: '出題者は回答できません！', ephemeral: true });
+      return interaction.reply({ content: '出題者は回答できません！', flags: 64 });
     }
 
     const userAnswer = interaction.fields.getTextInputValue('answer_input').trim();
@@ -205,14 +205,14 @@ async function handleModal(interaction) {
       toKatakana(normalize(userAnswer)) === toKatakana(normalize(correct));
 
     if (!isCorrect) {
-      return interaction.reply({ content: `不正解！「${userAnswer}」は違います。もう一度考えてみよう！`, ephemeral: true });
+      return interaction.reply({ content: `不正解！「${userAnswer}」は違います。もう一度考えてみよう！`, flags: 64 });
     }
 
     const pointList = [3, 2, 1];
     const winners = game.roundWinners || [];
 
     if (winners.includes(interaction.user.id)) {
-      return interaction.reply({ content: 'すでに正解済みです！', ephemeral: true });
+      return interaction.reply({ content: 'すでに正解済みです！', flags: 64 });
     }
 
     const newWinners = [...winners, interaction.user.id];
@@ -221,7 +221,7 @@ async function handleModal(interaction) {
     scores[interaction.user.id] = (scores[interaction.user.id] || 0) + pts;
     updateGame(guildId, { roundWinners: newWinners, scores });
 
-    await interaction.reply({ content: `正解！${pts}ポイント獲得！`, ephemeral: true });
+    await interaction.reply({ content: `正解！${pts}ポイント獲得！`, flags: 64 });
 
     if (newWinners.length >= 3) {
       const updatedGame = getGame(guildId);
@@ -241,15 +241,15 @@ async function handleModal(interaction) {
 
   if (interaction.customId === 'quiz_next_round_modal') {
     if (!game) {
-      return interaction.reply({ content: '現在進行中のクイズがありません。', ephemeral: true });
+      return interaction.reply({ content: '現在進行中のクイズがありません。', flags: 64 });
     }
     if (interaction.user.id !== game.quizmasterId) {
-      return interaction.reply({ content: '出題者のみ操作できます。', ephemeral: true });
+      return interaction.reply({ content: '出題者のみ操作できます。', flags: 64 });
     }
 
     const answer = interaction.fields.getTextInputValue('next_word_input').trim();
     if (/[\u4E00-\u9FFF\u3400-\u4DBF\uF900-\uFAFF]/.test(answer)) {
-      return interaction.reply({ content: '⚠️ お題にはひらがな・カタカナのみ使用できます。漢字は使えません。', ephemeral: true });
+      return interaction.reply({ content: '⚠️ お題にはひらがな・カタカナのみ使用できます。漢字は使えません。', flags: 64 });
     }
 
     const prevAnswer = game.answer;
@@ -262,7 +262,7 @@ async function handleModal(interaction) {
     if (isLastRound) {
       await interaction.channel.send(buildFinalMessage(game));
       clearGame(guildId);
-      await interaction.reply({ content: '✅ ゲーム終了！', ephemeral: true });
+      await interaction.reply({ content: '✅ ゲーム終了！', flags: 64 });
       return;
     }
 

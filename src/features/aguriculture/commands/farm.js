@@ -8,6 +8,6 @@ module.exports = {
 
   async execute(interaction) {
     const payload = await buildFarmPayload(interaction.user.id);
-    await interaction.reply({ ...payload, ephemeral: true });
+    await interaction.reply({ ...payload, flags: 64 });
   },
 };

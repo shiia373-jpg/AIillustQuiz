@@ -695,9 +695,9 @@ async function handleInteriorFurnButton(interaction) {
   const safeReply = async (opts) => {
     try {
       if (interaction.replied || interaction.deferred) {
-        await interaction.followUp({ ...opts, ephemeral: true });
+        await interaction.followUp({ ...opts, flags: 64 });
       } else {
-        await interaction.reply({ ...opts, ephemeral: true });
+        await interaction.reply({ ...opts, flags: 64 });
       }
     } catch { /* ignore */ }
   };
@@ -760,7 +760,7 @@ async function handleInteriorFurnButton(interaction) {
       components: buildInteriorFurnButtons(farm, 0),
       files: [],
     });
-    await interaction.followUp({ content: `✅ ${item.emoji} **${item.name}** を${msg}${topHint}`, ephemeral: true });
+    await interaction.followUp({ content: `✅ ${item.emoji} **${item.name}** を${msg}${topHint}`, flags: 64 });
     return;
   }
 
@@ -862,7 +862,7 @@ async function handleInteriorFurnButton(interaction) {
     return interaction.reply({
       embeds: [buildSmallItemEmbed(farm)],
       components: buildSmallItemButtons(farm),
-      ephemeral: true,
+      flags: 64,
     });
   }
 
@@ -934,7 +934,7 @@ async function handleInteriorFurnButton(interaction) {
     });
     await interaction.followUp({
       content: `✅ ${item.emoji} **${item.name}** を **${ROOM_POSITIONS[posIdx]}** に移動しました！`,
-      ephemeral: true,
+      flags: 64,
     }).catch(() => {});
     return;
   }
@@ -1018,7 +1018,7 @@ function buildVCVisitPayload(members, vcName) {
   return {
     content: `🏘️ VC「**${vcName}**」のメンバーから選んでください：`,
     components: [row],
-    ephemeral: true,
+    flags: 64,
   };
 }
 
@@ -1143,17 +1143,17 @@ async function handleShopButton(interaction) {
     const farm = await loadFarm(interaction.user.id);
     const nextSlot = farm.slots.length;
     if (nextSlot >= MAX_SLOTS) {
-      return interaction.reply({ content: '❌ これ以上解放できません。', ephemeral: true });
+      return interaction.reply({ content: '❌ これ以上解放できません。', flags: 64 });
     }
     const cost = getUnlockCost(nextSlot);
     if (farm.coins < cost) {
-      return interaction.reply({ content: `❌ コインが足りません（必要: ${cost} G）`, ephemeral: true });
+      return interaction.reply({ content: `❌ コインが足りません（必要: ${cost} G）`, flags: 64 });
     }
     farm.coins -= cost;
     farm.slots.push({ crop: null, planted_at: null });
     await saveFarm(interaction.user.id, farm);
     await interaction.update({ embeds: [buildShopEmbed(farm)], components: buildShopButtons(farm) });
-    await interaction.followUp({ content: `✅ スロット **#${nextSlot + 1}** を解放！（残: ${farm.coins} G）`, ephemeral: true });
+    await interaction.followUp({ content: `✅ スロット **#${nextSlot + 1}** を解放！（残: ${farm.coins} G）`, flags: 64 });
     return;
   }
 
@@ -1164,14 +1164,14 @@ async function handleShopButton(interaction) {
 
     const farm = await loadFarm(interaction.user.id);
     if (crop.buy > 0 && farm.coins < crop.buy) {
-      return interaction.reply({ content: `❌ コインが足りません（必要: ${crop.buy} G）`, ephemeral: true });
+      return interaction.reply({ content: `❌ コインが足りません（必要: ${crop.buy} G）`, flags: 64 });
     }
     farm.coins -= crop.buy;
     farm.seeds[cropId] = (farm.seeds[cropId] ?? 0) + 1;
     await saveFarm(interaction.user.id, farm);
     await interaction.update({ embeds: [buildShopEmbed(farm)], components: buildShopButtons(farm) });
     const priceStr = crop.buy === 0 ? '無料で' : `${crop.buy} G で`;
-    await interaction.followUp({ content: `✅ ${crop.emoji} **${crop.name}** の種を${priceStr}購入！（残: ${farm.coins} G）`, ephemeral: true });
+    await interaction.followUp({ content: `✅ ${crop.emoji} **${crop.name}** の種を${priceStr}購入！（残: ${farm.coins} G）`, flags: 64 });
   }
 
   } catch (err) {
@@ -1530,9 +1530,9 @@ async function handleHouseShopButton(interaction) {
   const safeReply = async (content) => {
     try {
       if (interaction.replied || interaction.deferred) {
-        await interaction.followUp({ content, ephemeral: true });
+        await interaction.followUp({ content, flags: 64 });
       } else {
-        await interaction.reply({ content, ephemeral: true });
+        await interaction.reply({ content, flags: 64 });
       }
     } catch { /* ignore */ }
   };
@@ -1546,7 +1546,7 @@ async function handleHouseShopButton(interaction) {
     return interaction.reply({
       embeds: [buildHouseShopEmbed(farm)],
       components: buildHouseShopCategoryButtons(),
-      ephemeral: true,
+      flags: 64,
     });
   }
 
@@ -1595,15 +1595,15 @@ async function handleHouseShopButton(interaction) {
     if (!farm.house) farm.house = { ...DEFAULT_HOUSE };
     if (!farm.ownedHouseItems) farm.ownedHouseItems = Object.keys(HOUSE_ITEMS).filter(k => HOUSE_ITEMS[k].price === 0);
     if (farm.ownedHouseItems.includes(itemId)) {
-      return interaction.reply({ content: `❌ すでに所持しています。`, ephemeral: true });
+      return interaction.reply({ content: `❌ すでに所持しています。`, flags: 64 });
     }
     if (farm.coins < item.price) {
-      return interaction.reply({ content: `❌ コインが足りません（必要: ${item.price} G）`, ephemeral: true });
+      return interaction.reply({ content: `❌ コインが足りません（必要: ${item.price} G）`, flags: 64 });
     }
     farm.coins -= item.price;
     farm.ownedHouseItems.push(itemId);
     await saveFarm(interaction.user.id, farm);
-    await interaction.reply({ content: `✅ ${item.emoji} **${item.name}** を **${item.price} G** で購入しました！\n家具ショップの「の上を整理」から置いてみましょう。`, ephemeral: true });
+    await interaction.reply({ content: `✅ ${item.emoji} **${item.name}** を **${item.price} G** で購入しました！\n家具ショップの「の上を整理」から置いてみましょう。`, flags: 64 });
     await interaction.update({
       embeds: [buildSmallItemEmbed(farm)],
       components: buildSmallItemButtons(farm),
@@ -1645,7 +1645,7 @@ async function handleHouseShopButton(interaction) {
       }
     }
     if (!cId || !iId || !HOUSE_ITEMS[cId] || !HOUSE_ITEMS[iId]) {
-      return interaction.reply({ content: '❌ 不明なアイテムです。', ephemeral: true });
+      return interaction.reply({ content: '❌ 不明なアイテムです。', flags: 64 });
     }
     const farm = await loadFarm(interaction.user.id);
     if (!farm.house) farm.house = { ...DEFAULT_HOUSE };
@@ -1653,7 +1653,7 @@ async function handleHouseShopButton(interaction) {
     if (!farm.house.furnitureTop[cId]) farm.house.furnitureTop[cId] = [];
     const topSlots  = HOUSE_ITEMS[cId].topSlots ?? MAX_TOP_ITEMS;
     if (farm.house.furnitureTop[cId].length >= topSlots) {
-      return interaction.reply({ content: `❌ もう置けません（最大${topSlots}個）`, ephemeral: true });
+      return interaction.reply({ content: `❌ もう置けません（最大${topSlots}個）`, flags: 64 });
     }
     farm.house.furnitureTop[cId].push(iId);
     await saveFarm(interaction.user.id, farm);
@@ -1677,7 +1677,7 @@ async function handleHouseShopButton(interaction) {
         break;
       }
     }
-    if (!cId || !iId) return interaction.reply({ content: '❌ 不明なアイテムです。', ephemeral: true });
+    if (!cId || !iId) return interaction.reply({ content: '❌ 不明なアイテムです。', flags: 64 });
     const farm = await loadFarm(interaction.user.id);
     if (!farm.house) farm.house = { ...DEFAULT_HOUSE };
     if (!farm.house.furnitureTop) farm.house.furnitureTop = {};
@@ -1703,13 +1703,13 @@ async function handleHouseShopButton(interaction) {
     if (!farm.ownedHouseItems) farm.ownedHouseItems = Object.keys(HOUSE_ITEMS).filter(k => HOUSE_ITEMS[k].price === 0);
 
     if (farm.house.furniture.length >= MAX_FURNITURE) {
-      return interaction.reply({ content: `❌ 家具は最大 ${MAX_FURNITURE} 個まで設置できます。`, ephemeral: true });
+      return interaction.reply({ content: `❌ 家具は最大 ${MAX_FURNITURE} 個まで設置できます。`, flags: 64 });
     }
 
     const isOwned = farm.ownedHouseItems.includes(itemId);
     if (!isOwned) {
       if (farm.coins < item.price) {
-        return interaction.reply({ content: `❌ コインが足りません（必要: ${item.price} G）`, ephemeral: true });
+        return interaction.reply({ content: `❌ コインが足りません（必要: ${item.price} G）`, flags: 64 });
       }
       farm.coins -= item.price;
       farm.ownedHouseItems.push(itemId);
@@ -1720,7 +1720,7 @@ async function handleHouseShopButton(interaction) {
 
     const msg = isOwned ? `設置しました！` : `${item.price} G で購入・設置しました！`;
     const topHint = item.topSlots ? `\n📦 上に小物を${item.topSlots}個まで置けます！「の上を整理」から配置してみましょう。` : '';
-    await interaction.reply({ content: `✅ ${item.emoji} **${item.name}** を${msg}${topHint}`, ephemeral: true });
+    await interaction.reply({ content: `✅ ${item.emoji} **${item.name}** を${msg}${topHint}`, flags: 64 });
     await interaction.update({
       embeds: [buildFurnitureEmbed(farm, 0)],
       components: buildFurnitureButtons(farm, 0),
@@ -1765,7 +1765,7 @@ async function handleHouseShopButton(interaction) {
 
     if (!isOwned) {
       if (item.price > 0 && farm.coins < item.price) {
-        return interaction.reply({ content: `❌ コインが足りません（必要: ${item.price} G）`, ephemeral: true });
+        return interaction.reply({ content: `❌ コインが足りません（必要: ${item.price} G）`, flags: 64 });
       }
       farm.coins -= item.price;
       farm.ownedHouseItems.push(itemId);
@@ -1778,7 +1778,7 @@ async function handleHouseShopButton(interaction) {
     const priceMsg = isOwned ? '' : item.price === 0 ? '無料で入手！ ' : `${item.price} G で購入！ `;
     await interaction.reply({
       content: `✅ ${priceMsg}**${item.name}** を装備しました！`,
-      ephemeral: true,
+      flags: 64,
     });
 
     // 農場画像も更新

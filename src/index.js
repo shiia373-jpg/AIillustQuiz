@@ -35,7 +35,7 @@ client.on('interactionCreate', async (interaction) => {
       await command.execute(interaction);
     } catch (err) {
       console.error(`[Command Error] ${interaction.commandName}:`, err);
-      const msg = { content: '⚠️ コマンドの実行中にエラーが発生しました。', ephemeral: true };
+      const msg = { content: '⚠️ コマンドの実行中にエラーが発生しました。', flags: 64 };
       if (interaction.replied || interaction.deferred) {
         await interaction.followUp(msg).catch(() => {});
       } else {
@@ -51,7 +51,7 @@ client.on('interactionCreate', async (interaction) => {
         await mod.handleButton(interaction);
       } catch (err) {
         console.error('[Button Error]:', err);
-        const msg = { content: '⚠️ ボタン処理中にエラーが発生しました。', ephemeral: true };
+        const msg = { content: '⚠️ ボタン処理中にエラーが発生しました。', flags: 64 };
         if (interaction.replied || interaction.deferred) {
           await interaction.followUp(msg).catch(() => {});
         } else {
@@ -68,7 +68,7 @@ client.on('interactionCreate', async (interaction) => {
         await mod.handleSelectMenu(interaction);
       } catch (err) {
         console.error('[SelectMenu Error]:', err);
-        const msg = { content: '⚠️ 選択処理中にエラーが発生しました。', ephemeral: true };
+        const msg = { content: '⚠️ 選択処理中にエラーが発生しました。', flags: 64 };
         if (interaction.replied || interaction.deferred) {
           await interaction.followUp(msg).catch(() => {});
         } else {
@@ -85,7 +85,7 @@ client.on('interactionCreate', async (interaction) => {
         await mod.handleModal(interaction);
       } catch (err) {
         console.error('[Modal Error]:', err);
-        const msg = { content: '⚠️ 回答処理中にエラーが発生しました。', ephemeral: true };
+        const msg = { content: '⚠️ 回答処理中にエラーが発生しました。', flags: 64 };
         if (interaction.replied || interaction.deferred) {
           await interaction.followUp(msg).catch(() => {});
         } else {

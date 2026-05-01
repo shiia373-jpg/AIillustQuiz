@@ -13,7 +13,7 @@ module.exports = {
     await interaction.reply({
       embeds: [buildShopEmbed(farm)],
       components: buildShopButtons(farm),
-      ephemeral: true,
+      flags: 64,
     });
   },
 };

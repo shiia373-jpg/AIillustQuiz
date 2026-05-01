@@ -31,7 +31,7 @@ module.exports = {
     await interaction.reply({
       content: `✅ 全${totalRounds}ラウンドで開始します！\nボタンを押してラウンド1のお題を入力してください。`,
       components: [row],
-      ephemeral: true,
+      flags: 64,
     });
   },
 };

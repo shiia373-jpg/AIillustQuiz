@@ -20,7 +20,7 @@ async function handleButton(interaction) {
 
   if (customId === 'menu_farm') {
     const payload = await buildFarmPayload(interaction.user.id);
-    await interaction.reply({ ...payload, ephemeral: true });
+    await interaction.reply({ ...payload, flags: 64 });
     return;
   }
 
@@ -36,7 +36,7 @@ async function handleButton(interaction) {
       .setTitle('🎨 AIイラストクイズ')
       .setDescription('ラウンド数を選んでください')
       .setColor(0x5865f2);
-    await interaction.reply({ embeds: [embed], components: [row], ephemeral: true });
+    await interaction.reply({ embeds: [embed], components: [row], flags: 64 });
     return;
   }
 
