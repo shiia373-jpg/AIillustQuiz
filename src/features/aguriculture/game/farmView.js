@@ -76,6 +76,20 @@ async function buildFarmPayload(userId) {
     embed.addFields({ name: '🏡 家ボーナス', value: bonusParts.join('　'), inline: true });
   }
 
+  // 自動収穫機の通知（Lv.5以上）
+  if (farm.autoHarvestPending && farm.autoHarvestPending.count > 0) {
+    const p = farm.autoHarvestPending;
+    embed.addFields({
+      name: '🤖 自動収穫機',
+      value: `${p.count}個収穫 → **+${p.coins} G** / **+${p.exp} EXP**`,
+    });
+    // 表示したらクリア
+    farm.autoHarvestPending = null;
+    await saveFarm(userId, farm);
+  } else if (farm.level >= 5) {
+    embed.addFields({ name: '🤖 自動収穫機', value: '稼働中（30分ごとに収穫）', inline: true });
+  }
+
   const row1 = new ActionRowBuilder().addComponents(
     new ButtonBuilder()
       .setCustomId('farm_plant_menu')
