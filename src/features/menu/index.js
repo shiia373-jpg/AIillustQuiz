@@ -19,9 +19,8 @@ async function handleButton(interaction) {
   const { customId } = interaction;
 
   if (customId === 'menu_farm') {
-    await interaction.deferReply({ ephemeral: true });
     const payload = await buildFarmPayload(interaction.user.id);
-    await interaction.editReply(payload);
+    await interaction.reply({ ...payload, ephemeral: true });
     return;
   }
 

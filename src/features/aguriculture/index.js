@@ -87,28 +87,21 @@ async function handleButton(interaction) {
     if (customId === 'farm_visit_menu') {
       const vc = interaction.member?.voice?.channel;
       if (!vc) {
-        // ここは deferUpdate していないので followUp + ephemeral で正解
-        return interaction.reply({
+        return interaction.followUp({
           content: '❌ 訪問するにはボイスチャンネルに参加してください。',
           ephemeral: true,
         });
       }
-
-      // キャッシュを強制取得（古い情報の回避）
       const members = [...vc.members.values()]
         .filter(m => !m.user.bot && m.id !== user.id)
         .slice(0, 25)
         .map(m => ({ id: m.id, displayName: m.displayName }));
-
       if (members.length === 0) {
-        return interaction.reply({
+        return interaction.followUp({
           content: `❌ VC「**${vc.name}**」に他のメンバーがいません。`,
           ephemeral: true,
         });
       }
-
-      // メイン画面を更新してセレクトメニューを出す
-      await interaction.deferUpdate(); 
       return interaction.editReply(buildVCVisitPayload(members, vc.name));
     }
     
