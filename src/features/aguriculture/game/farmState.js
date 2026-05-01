@@ -28,11 +28,9 @@ async function loadFarm(userId) {
   try {
     const raw  = await fs.readFile(userFilePath(userId), 'utf8');
     const farm = JSON.parse(raw);
-    farm.coins = 999999999; // 一時的: コイン無限
     return farm;
   } catch {
     const farm = createDefaultFarm();
-    farm.coins = 999999999; // 一時的: コイン無限
     return farm;
   }
 }
