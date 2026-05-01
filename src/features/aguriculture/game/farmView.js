@@ -999,6 +999,10 @@ async function buildVisitFarmPayload(targetUserId, ownerName) {
       .setLabel('入室する')
       .setEmoji('🚪')
       .setStyle(ButtonStyle.Primary),
+    new ButtonBuilder()
+      .setCustomId('farm_refresh')
+      .setLabel('← 戻る')
+      .setStyle(ButtonStyle.Secondary),
   );
 
   return { embeds: [embed], files: [attachment], components: [row], content: null };
