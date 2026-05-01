@@ -181,6 +181,8 @@ async function handleSelectMenu(interaction) {
     const targetId = interaction.values?.[0];
     if (!targetId) return;
 
+    await interaction.deferUpdate();
+
     const guildMember = interaction.guild?.members.cache.get(targetId);
     const displayName = guildMember?.displayName
       ?? (await interaction.client.users.fetch(targetId).catch(() => null))?.username
@@ -188,7 +190,7 @@ async function handleSelectMenu(interaction) {
 
     const ownerName = targetId === interaction.user.id ? null : displayName;
     const payload   = await buildVisitFarmPayload(targetId, ownerName);
-    return interaction.update(payload);
+    return interaction.editReply(payload);
   }
 }
 
