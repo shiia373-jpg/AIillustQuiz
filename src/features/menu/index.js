@@ -20,7 +20,7 @@ async function handleButton(interaction) {
   const { customId } = interaction;
 
   if (customId === 'menu_farm') {
-    await interaction.deferReply();
+    await interaction.deferReply({ ephemeral: true });
     const payload = await buildFarmPayload(interaction.user.id);
     const msg = await interaction.editReply(payload);
     await setFarmMessage(interaction.user.id, msg.id, interaction.channelId);
