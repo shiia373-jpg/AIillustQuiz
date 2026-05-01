@@ -778,8 +778,52 @@ function drawHouse(ctx, house, startY) {
   }
 
   // ── 壁（正面）──
-  ctx.fillStyle = wallItem.color;
-  ctx.fillRect(wallX, wallY, WALL_W, WALL_H);
+  if (house.wall === 'wall_golden') {
+    // 黄金の壁：斜めグラデーション＋光沢
+    const gWallGrad = ctx.createLinearGradient(wallX, wallY, wallX + WALL_W, wallY + WALL_H);
+    gWallGrad.addColorStop(0,    '#FFE84A');
+    gWallGrad.addColorStop(0.25, '#FFD700');
+    gWallGrad.addColorStop(0.5,  '#FFF0A0');
+    gWallGrad.addColorStop(0.75, '#FFD700');
+    gWallGrad.addColorStop(1,    '#C89000');
+    ctx.fillStyle = gWallGrad;
+    ctx.fillRect(wallX, wallY, WALL_W, WALL_H);
+    // 縦スジ光沢（金属感）
+    ctx.save();
+    ctx.rect(wallX, wallY, WALL_W, WALL_H);
+    ctx.clip();
+    for (let sx = wallX + 16; sx < wallX + WALL_W; sx += 32) {
+      const sGrad = ctx.createLinearGradient(sx - 6, wallY, sx + 6, wallY);
+      sGrad.addColorStop(0,   'rgba(255,255,180,0)');
+      sGrad.addColorStop(0.5, 'rgba(255,255,200,0.22)');
+      sGrad.addColorStop(1,   'rgba(255,255,180,0)');
+      ctx.fillStyle = sGrad;
+      ctx.fillRect(sx - 6, wallY, 12, WALL_H);
+    }
+    // キラキラ星
+    const goldenStars = [
+      { x: wallX+18,  y: wallY+16, s: 1.8 }, { x: wallX+55,  y: wallY+38, s: 1.4 },
+      { x: wallX+95,  y: wallY+14, s: 2.0 }, { x: wallX+135, y: wallY+34, s: 1.6 },
+      { x: wallX+175, y: wallY+12, s: 1.8 }, { x: wallX+210, y: wallY+32, s: 1.4 },
+      { x: wallX+35,  y: wallY+58, s: 1.6 }, { x: wallX+78,  y: wallY+55, s: 1.3 },
+      { x: wallX+118, y: wallY+60, s: 1.7 }, { x: wallX+158, y: wallY+52, s: 1.4 },
+      { x: wallX+198, y: wallY+57, s: 1.6 },
+    ];
+    goldenStars.forEach(({ x, y, s }) => {
+      ctx.save();
+      ctx.shadowColor = '#FFE84A'; ctx.shadowBlur = 6;
+      ctx.fillStyle = '#FFFFC0';
+      ctx.beginPath(); ctx.arc(x, y, s, 0, Math.PI * 2); ctx.fill();
+      ctx.strokeStyle = 'rgba(255,255,180,0.7)'; ctx.lineWidth = s * 0.6;
+      ctx.beginPath(); ctx.moveTo(x - s*2.5, y); ctx.lineTo(x + s*2.5, y); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(x, y - s*2.5); ctx.lineTo(x, y + s*2.5); ctx.stroke();
+      ctx.restore();
+    });
+    ctx.restore();
+  } else {
+    ctx.fillStyle = wallItem.color;
+    ctx.fillRect(wallX, wallY, WALL_W, WALL_H);
+  }
 
   // レンガパターン（brick のみ）
   if (house.wall === 'wall_brick') {
@@ -972,6 +1016,57 @@ function drawHouse(ctx, house, startY) {
   ctx.lineTo(roofPeakX + 30, roofPeakY + ROOF_H * 0.4);
   ctx.closePath();
   ctx.fill();
+  // 黄金屋根：金ピカグラデーション＋キラキラ
+  if (house.roof === 'roof_golden') {
+    // 屋根面を金グラデで上塗り
+    const roofGoldGrad = ctx.createLinearGradient(roofPeakX, roofPeakY, roofPeakX, wallY);
+    roofGoldGrad.addColorStop(0,    '#FFF0A0');
+    roofGoldGrad.addColorStop(0.3,  '#FFD700');
+    roofGoldGrad.addColorStop(0.65, '#E8A800');
+    roofGoldGrad.addColorStop(1,    '#C89000');
+    ctx.fillStyle = roofGoldGrad;
+    ctx.beginPath();
+    ctx.moveTo(roofPeakX, roofPeakY);
+    ctx.lineTo(wallX - 18, wallY);
+    ctx.lineTo(wallX + WALL_W + 18, wallY);
+    ctx.closePath();
+    ctx.fill();
+    // 光沢ハイライト（左面斜め）
+    const roofShine = ctx.createLinearGradient(roofPeakX - 60, roofPeakY, wallX, wallY);
+    roofShine.addColorStop(0,   'rgba(255,255,200,0.50)');
+    roofShine.addColorStop(0.4, 'rgba(255,255,180,0.20)');
+    roofShine.addColorStop(1,   'rgba(255,255,180,0)');
+    ctx.fillStyle = roofShine;
+    ctx.beginPath();
+    ctx.moveTo(roofPeakX, roofPeakY);
+    ctx.lineTo(wallX - 18, wallY);
+    ctx.lineTo(wallX + WALL_W + 18, wallY);
+    ctx.closePath();
+    ctx.fill();
+    // 頂点のキラキラ
+    const roofGoldStars = [
+      { rx:   0, ry: 0.0,  s: 2.4 },
+      { rx: -38, ry: 0.45, s: 1.8 },
+      { rx:  40, ry: 0.45, s: 1.8 },
+      { rx: -70, ry: 0.75, s: 1.5 },
+      { rx:  72, ry: 0.75, s: 1.5 },
+      { rx: -18, ry: 0.28, s: 1.4 },
+      { rx:  20, ry: 0.28, s: 1.4 },
+    ];
+    roofGoldStars.forEach(({ rx, ry, s }) => {
+      const sx = roofPeakX + rx;
+      const sy = roofPeakY + (wallY - roofPeakY) * ry;
+      ctx.save();
+      ctx.shadowColor = '#FFE84A'; ctx.shadowBlur = 8;
+      ctx.fillStyle = '#FFFFFF';
+      ctx.beginPath(); ctx.arc(sx, sy, s, 0, Math.PI * 2); ctx.fill();
+      ctx.strokeStyle = 'rgba(255,240,100,0.85)'; ctx.lineWidth = s * 0.7;
+      ctx.beginPath(); ctx.moveTo(sx - s*3, sy); ctx.lineTo(sx + s*3, sy); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(sx, sy - s*3); ctx.lineTo(sx, sy + s*3); ctx.stroke();
+      ctx.restore();
+    });
+  }
+
   // ヤミー屋根：多重魔法オーラ＋月冠ヤミー
   if (house.roof === 'roof_yamii') {
     // 内側の金色オーラ
