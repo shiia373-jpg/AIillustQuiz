@@ -3,6 +3,7 @@ const path = require('path');
 const { loadFarm, setFarmMessage, setRoomView } = require('./game/farmState');
 const {
   buildFarmPayload,
+  buildVisitFarmPayload,
   buildInteriorPayload,
   buildVCVisitPayload,
   buildSlotPickerPayload,
@@ -69,6 +70,17 @@ async function handleButton(interaction) {
     if (customId === 'farm_enter_room') {
       await setRoomView(user.id, true);   // 自動更新を一時停止
       return interaction.editReply(await buildInteriorPayload(user.id));
+    }
+
+    // ── 訪問先の入室 ──
+    if (customId.startsWith('farm_visit_enter_')) {
+      const targetId = customId.replace('farm_visit_enter_', '');
+      const guildMember = interaction.guild?.members.cache.get(targetId);
+      const displayName = guildMember?.displayName
+        ?? (await interaction.client.users.fetch(targetId).catch(() => null))?.username
+        ?? targetId;
+      const ownerName = targetId === user.id ? null : displayName;
+      return interaction.editReply(await buildInteriorPayload(targetId, ownerName));
     }
 
     // ── 訪問メニュー（同じ VC のメンバーから選択）──
@@ -175,8 +187,8 @@ async function handleSelectMenu(interaction) {
       ?? targetId;
 
     const ownerName = targetId === interaction.user.id ? null : displayName;
-    const payload   = await buildInteriorPayload(targetId, ownerName);
-    return interaction.update({ ...payload, content: null });
+    const payload   = await buildVisitFarmPayload(targetId, ownerName);
+    return interaction.update(payload);
   }
 }
 

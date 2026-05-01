@@ -949,6 +949,61 @@ async function handleInteriorFurnButton(interaction) {
 }
 
 // members: [{ id, displayName }]  vcName: VCの名前
+// ─── 訪問：農場外観ビュー ─────────────────────────────────────────────────────
+
+async function buildVisitFarmPayload(targetUserId, ownerName) {
+  const farm = await loadFarm(targetUserId);
+  if (!farm.level) farm.level = 1;
+  if (!farm.exp)   farm.exp   = 0;
+
+  const buf        = generateFarmImage(farm);
+  const attachment = new AttachmentBuilder(buf, { name: 'farm.png' });
+
+  // スロット状態（種の詳細は見せない）
+  const slotLines = farm.slots.map((slot, i) => {
+    const st = getSlotStatus(slot);
+    if (st === 'empty') return `**#${i + 1}** 　空き`;
+    const c = CROPS[slot.crop];
+    if (st === 'growing') return `**#${i + 1}** 🌱 ${c.name} — あと ${formatTime(getTimeToReady(slot))}`;
+    const labels = { optimal: '⭐ ベストタイミング！', ready: '✅ 収穫OK', overripe: '⚠️ 過熟！' };
+    return `**#${i + 1}** ${labels[st] ?? st} ${c.name}`;
+  });
+
+  const nextLevelExp = getLevelExp(farm.level);
+  const expBar    = Math.floor((farm.exp / nextLevelExp) * 10);
+  const expBarStr = '█'.repeat(expBar) + '░'.repeat(10 - expBar);
+
+  const farmBonus  = getFarmBonus(farm);
+  const bonusParts = [];
+  if (farmBonus.coinBonus > 0) bonusParts.push(`💰 +${Math.round(farmBonus.coinBonus * 100)}%`);
+  if (farmBonus.expBonus  > 0) bonusParts.push(`⚡ +${Math.round(farmBonus.expBonus  * 100)}%`);
+  if (farmBonus.qualityUp > 0) bonusParts.push(`✨ 品質+${farmBonus.qualityUp}`);
+
+  const embed = new EmbedBuilder()
+    .setTitle(`🌾 ${ownerName} の農場`)
+    .setColor(0x3D7A26)
+    .addFields(
+      { name: '📋 スロット', value: slotLines.join('\n') || '(なし)' },
+      { name: '📦 解放スロット', value: `${farm.slots.length} / ${MAX_SLOTS}`, inline: true },
+      { name: `⚡ Lv.${farm.level}`, value: `${expBarStr}`, inline: true },
+    )
+    .setImage('attachment://farm.png');
+
+  if (bonusParts.length > 0) {
+    embed.addFields({ name: '🏡 家ボーナス', value: bonusParts.join('　'), inline: true });
+  }
+
+  const row = new ActionRowBuilder().addComponents(
+    new ButtonBuilder()
+      .setCustomId(`farm_visit_enter_${targetUserId}`)
+      .setLabel('入室する')
+      .setEmoji('🚪')
+      .setStyle(ButtonStyle.Primary),
+  );
+
+  return { embeds: [embed], files: [attachment], components: [row], content: null };
+}
+
 function buildVCVisitPayload(members, vcName) {
   const row = new ActionRowBuilder().addComponents(
     new StringSelectMenuBuilder()
@@ -1739,6 +1794,7 @@ async function handleHouseShopButton(interaction) {
 
 module.exports = {
   buildFarmPayload,
+  buildVisitFarmPayload,
   buildInteriorPayload,
   buildVCVisitPayload,
   buildSlotPickerPayload,
