@@ -1198,7 +1198,9 @@ function buildHouseShopEmbed(farm) {
       const isEquipped = house[cat] === id;
       const prefix = isEquipped ? '✅ ' : isOwned ? '📦 ' : '';
       const price  = item.price === 0 ? '無料' : `${item.price} G`;
-      return `${prefix}**${item.name}** — ${isOwned ? (isEquipped ? '装備中' : '所持済') : price}`;
+      const status = isOwned ? (isEquipped ? '装備中' : '所持済') : price;
+      const bonusText = formatBonus(item.bonus);
+      return `${prefix}**${item.name}** — ${status}${bonusText ? ` \`${bonusText}\`` : ''}`;
     });
     return { name: `${CATEGORY_NAMES[cat]}`, value: lines.join('\n'), inline: true };
   });
