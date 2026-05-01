@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const { loadFarm, setFarmMessage, setRoomView } = require('./game/farmState');
+const { loadFarm, setRoomView } = require('./game/farmState');
 const {
   buildFarmPayload,
   buildVisitFarmPayload,
@@ -114,10 +114,8 @@ async function handleButton(interaction) {
     
     // ── 農場表示・更新 ──
     if (customId === 'farm_refresh') {
-      await setRoomView(user.id, false);  // 自動更新を再開
-      await interaction.editReply(await buildFarmPayload(user.id));
-      await setFarmMessage(user.id, interaction.message.id, interaction.channelId);
-      return;
+      await setRoomView(user.id, false);
+      return interaction.editReply(await buildFarmPayload(user.id));
     }
 
     // ── 植えるメニュー（スロット選択）──
