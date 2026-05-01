@@ -355,10 +355,10 @@ async function buildInteriorPayload(targetUserId, ownerName = null) {
     );
     components.push(new ActionRowBuilder().addComponents(row1Comps));
   } else {
-    // 訪問者 → 退室のみ
+    // 訪問者 → 訪問先外観に戻る
     components.push(new ActionRowBuilder().addComponents(
       new ButtonBuilder()
-        .setCustomId('farm_refresh')
+        .setCustomId(`farm_visit_back_${targetUserId}`)
         .setLabel('← 退室')
         .setEmoji('🚪')
         .setStyle(ButtonStyle.Secondary),

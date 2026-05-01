@@ -83,6 +83,16 @@ async function handleButton(interaction) {
       return interaction.editReply(await buildInteriorPayload(targetId, ownerName));
     }
 
+    // ── 訪問先の室内から外観に戻る ──
+    if (customId.startsWith('farm_visit_back_')) {
+      const targetId = customId.replace('farm_visit_back_', '');
+      const guildMember = interaction.guild?.members.cache.get(targetId);
+      const displayName = guildMember?.displayName
+        ?? (await interaction.client.users.fetch(targetId).catch(() => null))?.username
+        ?? targetId;
+      return interaction.editReply(await buildVisitFarmPayload(targetId, displayName));
+    }
+
     // ── 訪問メニュー ──
     if (customId === 'farm_visit_menu') {
       const vc = interaction.member?.voice?.channel;
