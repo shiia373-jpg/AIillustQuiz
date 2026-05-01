@@ -79,15 +79,19 @@ async function buildFarmPayload(userId) {
   // 自動収穫機の通知（Lv.5以上）
   if (farm.autoHarvestPending && farm.autoHarvestPending.count > 0) {
     const p = farm.autoHarvestPending;
-    embed.addFields({
-      name: '🤖 自動収穫機',
-      value: `${p.count}個収穫 → **+${p.coins} G** / **+${p.exp} EXP**`,
-    });
-    // 表示したらクリア
+    const bestCount   = p.bestCount ?? 0;
+    const normalCount = p.count - bestCount;
+    const lines = [];
+    if (bestCount   > 0) lines.push(`⭐ ベスト収穫 ${bestCount}個`);
+    if (normalCount > 0) lines.push(`🔄 通常収穫 ${normalCount}個`);
+    lines.push(`→ **+${p.coins} G** / **+${p.exp} EXP**`);
+    embed.addFields({ name: '🤖 自動収穫機', value: lines.join('\n') });
     farm.autoHarvestPending = null;
     await saveFarm(userId, farm);
+  } else if (farm.level >= 10) {
+    embed.addFields({ name: '🤖 自動収穫機', value: '⭐ ベスト収穫(5分) ＋ 🔄 通常収穫(30分)', inline: true });
   } else if (farm.level >= 5) {
-    embed.addFields({ name: '🤖 自動収穫機', value: '稼働中（30分ごとに収穫）', inline: true });
+    embed.addFields({ name: '🤖 自動収穫機', value: '🔄 稼働中（30分ごとに収穫）', inline: true });
   }
 
   const row1 = new ActionRowBuilder().addComponents(
